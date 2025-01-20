@@ -1,0 +1,457 @@
+{
+  "name": "zgsm",
+  "publisher": "zgsm-ai",
+  "displayName": "ZHUGE: AI Coding Assistant",
+  "icon": "images/zhuge_shenma_rebot_logo_big.png",
+  "description": "Zhuge Shenma: An intelligent programming assistant that can improve coding efficiency",
+  "version": "1.2.0",
+  "repository": {
+    "url": "https://github.com/zgsm-ai/zgsm"
+  },
+  "engines": {
+    "vscode": "^1.69.0"
+  },
+  "categories": [
+    "Testing",
+    "Data Science",
+    "Formatters",
+    "Programming Languages",
+    "Snippets",
+    "Machine Learning",
+    "Education",
+    "Linters"
+  ],
+  "keywords": [
+    "智能助手",
+    "智能",
+    "助手",
+    "编码助手",
+    "编程",
+    "编程助手",
+    "AI编程",
+    "AI助手",
+    "AI编程助手",
+    "AI工程师",
+    "devin",
+    "辅助",
+    "辅助驾驶",
+    "深信服",
+    "诸葛",
+    "神码",
+    "cursor",
+    "copilot",
+    "context",
+    "coding",
+    "openai",
+    "testing",
+    "find bugs",
+    "ai",
+    "assistant",
+    "autocomplete",
+    "sangfor",
+    "c++",
+    "documentation",
+    "go",
+    "golang",
+    "intellisense",
+    "java",
+    "javascript",
+    "keybindings",
+    "review",
+    "project",
+    "lua",
+    "sql",
+    "shell",
+    "php",
+    "python",
+    "refactor",
+    "ruby",
+    "typescript",
+    "unittest"
+  ],
+  "activationEvents": [
+    "onStartupFinished",
+    "onCommand:vscode-zgsm.clearSession"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "submenus": [
+      {
+        "id": "zhuge-shenma",
+        "label": "诸葛神码"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "submenu": "zhuge-shenma",
+          "group": "0_chatGpt@1"
+        }
+      ],
+      "zhuge-shenma": [
+        {
+          "command": "vscode-zgsm.explain",
+          "group": "zhuge-shenma@1",
+          "when": "editorHasSelection"
+        },
+        {
+          "command": "vscode-zgsm.addComment",
+          "group": "zhuge-shenma@2",
+          "when": "editorHasSelection"
+        },
+        {
+          "command": "vscode-zgsm.codeReview",
+          "group": "zhuge-shenma@3",
+          "when": "editorHasSelection"
+        },
+        {
+          "command": "vscode-zgsm.addDebugCode",
+          "group": "zhuge-shenma@4",
+          "when": "editorHasSelection"
+        },
+        {
+          "command": "vscode-zgsm.addStrongerCode",
+          "group": "zhuge-shenma@5",
+          "when": "editorHasSelection"
+        },
+        {
+          "command": "vscode-zgsm.simplifyCode",
+          "group": "zhuge-shenma@6",
+          "when": "editorHasSelection"
+        },
+        {
+          "command": "vscode-zgsm.performanceOptimization",
+          "group": "zhuge-shenma@7",
+          "when": "editorHasSelection"
+        },
+        {
+          "command": "vscode-zgsm.view.issue",
+          "group": "zhuge-shenma@8"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "vscode-zgsm.view.userHelperDoc",
+          "when": "view == vscode-zgsm.view",
+          "group": "navigation"
+        },
+        {
+          "command": "vscode-zgsm.view.logout",
+          "when": "view == vscode-zgsm.view",
+          "group": "navigation"
+        },
+        {
+          "command": "vscode-zgsm.view.issue",
+          "when": "view == vscode-zgsm.view",
+          "group": "navigation"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "vscode-zgsm.view.userHelperDoc",
+        "title": "诸葛神码官网",
+        "icon": {
+          "light": "images/zhuge_ai_help_doc_icon_lightmode.svg",
+          "dark": "images/zhuge_ai_help_doc_icon_darkmode.svg"
+        }
+      },
+      {
+        "command": "vscode-zgsm.view.logout",
+        "title": "诸葛神码: 退出登录",
+        "icon": {
+          "light": "images/zhuge_ai_logout_icon_lightmode.svg",
+          "dark": "images/zhuge_ai_logout_icon_darkmode.svg"
+        }
+      },
+      {
+        "command": "vscode-zgsm.view.issue",
+        "title": "诸葛神码: 问题反馈",
+        "icon": {
+          "light": "images/issue.svg",
+          "dark": "images/issue-dark.svg"
+        }
+      },
+      {
+        "command": "vscode-zgsm.explain",
+        "title": "解释代码"
+      },
+      {
+        "command": "vscode-zgsm.addComment",
+        "title": "添加注释"
+      },
+      {
+        "command": "vscode-zgsm.addTests",
+        "title": "生成单测"
+      },
+      {
+        "command": "vscode-zgsm.codeReview",
+        "title": "代码审查"
+      },
+      {
+        "command": "vscode-zgsm.addDebugCode",
+        "title": "增加日志"
+      },
+      {
+        "command": "vscode-zgsm.addStrongerCode",
+        "title": "增加容错"
+      },
+      {
+        "command": "vscode-zgsm.simplifyCode",
+        "title": "精简代码"
+      },
+      {
+        "command": "vscode-zgsm.performanceOptimization",
+        "title": "性能优化"
+      },
+      {
+        "command": "vscode-zgsm.chat",
+        "title": "诸葛神码: 开始对话"
+      },
+      {
+        "command": "zgsm-completion.shortKeyCut",
+        "title": "诸葛神码代码补全快捷键",
+        "shortTitle": "诸葛神码代码补全快捷键"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "vscode-zgsm.chat",
+        "key": "alt+q"
+      },
+      {
+        "command": "zgsm-completion.shortKeyCut",
+        "key": "alt+a",
+        "when": "editorTextFocus && !editorReadonly"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "vscode-zgsm-view-container",
+          "title": "诸葛神码",
+          "icon": "images/zhuge_shenma_logo.svg"
+        }
+      ]
+    },
+    "views": {
+      "vscode-zgsm-view-container": [
+        {
+          "type": "webview",
+          "id": "vscode-zgsm.view",
+          "name": ""
+        }
+      ]
+    },
+    "configuration": [
+      {
+        "title": "诸葛神码",
+        "order": 1,
+        "properties": {
+          "诸葛神码.baseUrl": {
+            "type": "string",
+            "order": 1,
+            "default": "",
+            "description": "诸葛神码后端服务基地址"
+          },
+          "诸葛神码.loginUrl": {
+            "type": "string",
+            "order": 2,
+            "default": "",
+            "description": "用户自定义的OIDC登录API地址"
+          },
+          "诸葛神码.tokenUrl": {
+            "type": "string",
+            "order": 3,
+            "default": "",
+            "description": "用户自定义的OIDC获取token的API地址"
+          },
+          "诸葛神码.logoutUrl": {
+            "type": "string",
+            "order": 4,
+            "default": "",
+            "description": "用户自定义的OIDC登出API地址"
+          },
+          "诸葛神码.response.showNotification": {
+            "type": "boolean",
+            "order": 5,
+            "default": false,
+            "description": "是否在等待机器人回复时接收通知."
+          }
+        }
+      },
+      {
+        "title": "智能代码补全",
+        "order": 2,
+        "properties": {
+          "智能代码补全.enabled": {
+            "type": "boolean",
+            "default": true,
+            "order": 1,
+            "description": "开启智能代码补全"
+          },
+          "智能代码补全.betaMode": {
+            "type": "boolean",
+            "default": false,
+            "order": 2,
+            "description": "开启内测模式，提前使用智能代码补全的内测功能，内测功能列表详见版本公告."
+          },
+          "智能代码补全.inlineCompletion": {
+            "type": "boolean",
+            "default": false,
+            "description": "开启按行补全，开启后补全只会显示一行内容"
+          },
+          "智能代码补全.shortCutKeys": {
+            "default": "alt+a",
+            "enum": [
+              "alt+a"
+            ],
+            "description": "快捷键主动触发，若要修改快捷键，请使用 ctrl+shift+p 搜索 '诸葛神码代码补全快捷键'，然后点击右侧齿轮图标进行修改"
+          },
+          "智能代码补全.disableLanguages": {
+            "type": "object",
+            "additionalProperties": "string",
+            "default": {},
+            "markdownDescription": "在语言级别禁用代码补全功能(将“值”设为true即可禁用)"
+          }
+        }
+      },
+      {
+        "title": "函数快捷指令",
+        "order": 3,
+        "properties": {
+          "函数快捷指令.enabled": {
+            "type": "boolean",
+            "default": true,
+            "order": 1,
+            "description": "开启函数快捷指令"
+          },
+          "函数快捷指令.disableLanguages": {
+            "type": "object",
+            "additionalProperties": "string",
+            "default": {},
+            "markdownDescription": "语言级别禁用快捷指令功能(将“值”设为true即可禁用)"
+          },
+          "函数快捷指令.函数上方展示的快捷指令按钮": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "配置函数上方展示的快捷指令按钮",
+            "default": {
+              "explain": true,
+              "addComment": true,
+              "addTests": true,
+              "codeReview": true,
+              "addDebugCode": true,
+              "addStrongerCode": true,
+              "simplifyCode": true,
+              "performanceOptimization": true,
+              "shenmaInstructSet": false
+            },
+            "properties": {
+              "explain": {
+                "type": "boolean",
+                "default": true,
+                "description": "解释代码"
+              },
+              "addComment": {
+                "type": "boolean",
+                "default": true,
+                "description": "添加注释"
+              },
+              "addTests": {
+                "type": "boolean",
+                "default": true,
+                "description": "生成单测"
+              },
+              "codeReview": {
+                "type": "boolean",
+                "default": true,
+                "description": "代码审查"
+              },
+              "addDebugCode": {
+                "type": "boolean",
+                "default": true,
+                "description": "增加日志"
+              },
+              "addStrongerCode": {
+                "type": "boolean",
+                "default": true,
+                "description": "增加容错"
+              },
+              "simplifyCode": {
+                "type": "boolean",
+                "default": true,
+                "description": "精简代码"
+              },
+              "performanceOptimization": {
+                "type": "boolean",
+                "default": true,
+                "description": "性能优化"
+              },
+              "shenmaInstructSet": {
+                "type": "boolean",
+                "default": false,
+                "description": "勾选后函数上方会出现包含所有指令的<神码>按钮, 点击后会展开所有指令功能"
+              }
+            }
+          }
+        }
+      }
+    ],
+    "icons": {
+      "zhuge-shenma-icon": {
+        "description": "zhuge shenma logo",
+        "default": {
+          "fontPath": "images/zhuge_shenma_logo_icon.woff",
+          "fontCharacter": "\\E900"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run esbuild-base -- --minify",
+    "esbuild-base": "rimraf out && esbuild ./src/extension.ts --bundle --outfile=out/extension.js --external:vscode --format=cjs --platform=node",
+    "build": "npm run -S esbuild-base -- --sourcemap",
+    "watch": "npm run -S esbuild-base -- --sourcemap --watch",
+    "fmt": "prettier --write \"src/**/*.ts\"&& npm run test -- --fix",
+    "test": "eslint src --ext ts && tsc --noEmit",
+    "package": "vsce package",
+    "package:dev": "vsce package",
+    "publish": "vsce publish",
+    "lint-no-warning": "eslint . --quiet --ext .ts",
+    "lint": "eslint . --ext .ts",
+    "lint-and-fix": "eslint . --ext .ts --fix",
+    "postpackage": "echo 'Package created successfully!'"
+  },
+  "devDependencies": {
+    "@types/glob": "^8.0.0",
+    "@types/mocha": "^10.0.1",
+    "@types/node": "16.x",
+    "@types/vscode": "^1.69.0",
+    "@types/vscode-webview": "^1.57.0",
+    "@typescript-eslint/eslint-plugin": "^5.45.0",
+    "@typescript-eslint/parser": "^5.45.0",
+    "@vscode/test-electron": "^2.2.0",
+    "esbuild": "^0.15.18",
+    "eslint": "^8.28.0",
+    "glob": "^8.0.3",
+    "mocha": "^10.1.0",
+    "os": "^0.1.1",
+    "semver": "^7.5.4",
+    "ts-loader": "^9.4.1",
+    "typescript": "^4.9.3"
+  },
+  "dependencies": {
+    "async-mutex": "^0.4.0",
+    "axios": "^1.4.0",
+    "iconv-lite": "^0.6.3",
+    "node-fetch": "^3.3.0",
+    "openai": "^3.0.0",
+    "os": "^0.1.1",
+    "semver": "^7.5.4",
+    "vsce": "^2.15.0"
+  },
+  "files": [
+    "src/view/**/*"
+  ]
+}

@@ -1,0 +1,3 @@
+[submodule "html"]
+	path = html
+	url = git@code.sangfor.org:test/ATT/devops/chatgpt/webview-plugin.git
