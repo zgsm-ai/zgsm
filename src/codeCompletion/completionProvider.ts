@@ -34,16 +34,16 @@ export class AICompletionProvider implements InlineCompletionItemProvider, Dispo
     }
 
     /**
-     * 获取补全提示
-     * 有若干情况，不进行补全，原因大致分两大类：
-     * 1. 不允许：语言不支持,配置不补全,服务不正常
-     * 2. 不需要：该位置已有补全点，用户不采信，编辑位置发生变化，先导串发生变化
+     * Get completion prompts.
+     * There are several situations where completion is not performed, and the reasons can be roughly divided into two categories:
+     * 1. Not allowed: The language is not supported, the configuration does not allow completion, or the service is abnormal.
+     * 2. Not needed: There is already a completion point at this position, the user does not trust the completion, the editing position has changed, or the leading string has changed.
      */
     // @ts-expect-error: because ASYNC and PROMISE
     public async provideInlineCompletionItems(
-        document: TextDocument, 
-        pos: Position, 
-        context: InlineCompletionContext, 
+        document: TextDocument,
+        pos: Position,
+        context: InlineCompletionContext,
         token: CancellationToken
     ): ProviderResult<InlineCompletionItem[] | InlineCompletionList> {
         /* eslint-disable no-async-promise-executor */
@@ -81,23 +81,23 @@ export class AICompletionProvider implements InlineCompletionItemProvider, Dispo
         }
         cp = CompletionCache.cache(cp);
         let delayTimeval = this.calcDelayTimeval(triggerMode, cp);
-        Logger.info(`补全[${cp.id}]：准备补全, 触发模式：${triggerMode}, 位置: ${cp.pos.line}:${cp.pos.character}, 延迟时间：${delayTimeval}ms`);
-        return new Promise(async (resolve, reject) => {     // 防抖
+        Logger.info(`Completion [${cp.id}]: Prepare for completion, trigger mode: ${triggerMode}, position: ${cp.pos.line}:${cp.pos.character}, delay time: ${delayTimeval}ms`);
+        return new Promise(async (resolve, reject) => {     // Anti-shake
             await this.mutex.runExclusive(async () => {
                 if (this.timer) {
                     clearTimeout(this.timer);
                     this.timer = undefined;
                 }
-                // 创建一个新的定时器
+                // Create a new timer
                 this.timer = setTimeout(async () => {
-                    Logger.info(`补全[${cp.id}]：补全进入定时器执行, 位置: ${pos.line}:${pos.character}`);
+                    Logger.info(`Completion [${cp.id}]: Completion enters the timer execution, position: ${pos.line}:${pos.character}`);
                     try {
-                        // 在这里执行计算和渲染逻辑
+                        // Execute the calculation and rendering logic here
                         const result = await this.doProvideInlineCompletionItems(document, cp);
                         resolve(result);
                     } catch (error) {
-                        // 处理Promise被拒绝的情况
-                        Logger.info(`补全[${cp.id}]：Promise rejected error: `, error);
+                        // Handle the case where the Promise is rejected
+                        Logger.info(`Completion [${cp.id}]: Promise rejected error: `, error);
                         reject(error);
                     }
                 }, delayTimeval as number);
@@ -115,42 +115,42 @@ export class AICompletionProvider implements InlineCompletionItemProvider, Dispo
     }
 
     /**
-     * 是否允许代码补全
+     * Whether code completion is allowed.
      */
     private enableCompletion(triggerMode: string, docInfo: CompletionDocumentInformation): boolean {
-        if (!LangSetting.completionEnabled) { //全局禁用会忽略触发模式
-            Logger.info("补全：补全扩展为禁用状态，不补全");
+        if (!LangSetting.completionEnabled) { // Global disable will ignore the trigger mode
+            Logger.info("Completion: The completion extension is disabled, no completion will be performed.");
             return false;
         }
         const sw = LangSetting.getCompletionDisable(docInfo.language);
         if (sw === LangSwitch.Unsupported) {
-            Logger.info(`补全：${docInfo.language} 语言暂不支持代码补全`);
+            Logger.info(`Completion: The ${docInfo.language} language does not support code completion yet.`);
             return false;
         }
         if (triggerMode == 'auto') {
             if (sw === LangSwitch.Disabled) {
-                Logger.info(`补全：当前语言 ${docInfo.language} 补全功能已被禁用`);
+                Logger.info(`Completion: The completion function of the current language ${docInfo.language} has been disabled.`);
                 return false;
             }
         }
-        //手动模式会强行补全
+        // Manual mode will force completion
         return true;
     }
 
     /**
-     * 是否需要代码补全
+     * Whether code completion is needed.
      */
     private needCompletion(pos: Position): boolean {
-        // 判断光标前是否没有任何内容
+        // Check if there is no content before the cursor
         if (pos.isEqual(new Position(0,0))) {
-            Logger.info("补全：Prompt为空，无需补全");
+            Logger.info("Completion: The prompt is empty, no completion is needed.");
             return false;
         }
         return true;
     }
 
     /**
-     * 取消已经失效的补全点
+     * Cancel the invalid completion points.
      */
     private cancelBrokens() {
         let all = CompletionCache.all();
@@ -162,11 +162,11 @@ export class AICompletionProvider implements InlineCompletionItemProvider, Dispo
         }
     }
     /**
-     * 和前一个补全点对比，判断后续补全模式
-     * 根据当前位置的信息对之前若干补全点进行标注，并确定之后的补全模式
+     * Compare with the previous completion point to determine the subsequent completion mode.
+     * Mark several previous completion points based on the information of the current position and determine the subsequent completion mode.
      */
-    private completionDecision(triggerMode: string, 
-        latest: CompletionPoint | undefined, 
+    private completionDecision(triggerMode: string,
+        latest: CompletionPoint | undefined,
         cp: CompletionPoint
     ): CompletionRequirement {
         if (!latest) {
@@ -174,7 +174,7 @@ export class AICompletionProvider implements InlineCompletionItemProvider, Dispo
                 mode: CompletionMode.Newest
             }
         }
-        if (cp.isSamePosition(latest)) {    //  相同位置
+        if (cp.isSamePosition(latest)) {    //  Same position
             if (latest.getContent().length === 0) {
                 return {
                     mode: CompletionMode.DontNeed
@@ -184,9 +184,9 @@ export class AICompletionProvider implements InlineCompletionItemProvider, Dispo
                 mode: CompletionMode.Cached
             }
         }
-        // 比较两个补全点的内容之间的关系
+        // Compare the relationship between the contents of the two completion points
         let res = this.matchCompletion(latest, cp);
-        if ((res.mode === CompletionMode.Partial || res.mode === CompletionMode.Cached) 
+        if ((res.mode === CompletionMode.Partial || res.mode === CompletionMode.Cached)
             && triggerMode == "manual") {
             res.mode = CompletionMode.Newest;
         }
@@ -194,26 +194,26 @@ export class AICompletionProvider implements InlineCompletionItemProvider, Dispo
     }
 
     /**
-     * 判断补全点cur新输入字符是否是上一个补全点的补全内容
+     * Determine whether the newly input characters at the completion point cur are part of the completion content of the previous completion point.
      */
     private matchCompletion(last: CompletionPoint, cur: CompletionPoint): CompletionRequirement {
-        // 获取上次的光标前面部分代码
+        // Get the code before the cursor of the last completion
         const lastPrefix = last.linePrefix;
-        // 获取上次补全的内容
+        // Get the completion content of the last completion
         const lastCompletion = last.getContent();
-        // 本次的光标前内容
+        // The content before the cursor of the current completion
         const curPrefix = cur.linePrefix;
         if (!lastPrefix || !curPrefix || !lastCompletion || curPrefix.length < lastPrefix.length) {
             return {
                 mode: CompletionMode.Newest
             };
         }
-        // 部分匹配（两个向上的箭头如果重合，则是完全匹配）：
+        // Partial match (if the two upward arrows overlap, it is a complete match):
         // head ... lastPrefix.length> | <lastCompletion ... lastCompletion.length> | <lastSuffix ...
         //                                                                    ^     ^
         // head ... curPrefix[...]     | <inputString ... inputString.length> | ... | < curSuffix ...
         const inputString = curPrefix.substring(lastPrefix.length);
-        if (!inputString) {  //没有输入
+        if (!inputString) {  // No input
             return {
                 mode: CompletionMode.Cached
             }
@@ -223,7 +223,7 @@ export class AICompletionProvider implements InlineCompletionItemProvider, Dispo
                 mode: CompletionMode.Newest
             }
         }
-        // 如果对比上次触发补全时新加的内容 是 上次补全开头重叠的内容，直接缓存上次的内容
+        // If the newly added content compared to the last completion trigger is the overlapping content at the beginning of the last completion, directly cache the last completion content
         if (!lastCompletion.startsWith(inputString)) {
             return {
                 mode: CompletionMode.Newest
@@ -241,7 +241,7 @@ export class AICompletionProvider implements InlineCompletionItemProvider, Dispo
         }
     }
     /**
-     * 计算同一行的拒绝次数
+     * Calculate the number of rejections on the same line.
      */
     private calcLineRejection(cur: CompletionPoint): number {
         let rejected = 0;
@@ -259,8 +259,8 @@ export class AICompletionProvider implements InlineCompletionItemProvider, Dispo
         return rejected;
     }
     /**
-     * 更新延迟时间
-     * 补全延迟时间默认为300ms, 只有用户在该位置停留该时间后才会触发，避免过度触发干扰用户输入
+     * Update the delay time.
+     * The default delay time for completion is 300ms. Completion will only be triggered after the user stays at this position for this time to avoid excessive triggering and interfering with the user's input.
      */
     private calcDelayTimeval(triggerMode: string, cp: CompletionPoint): number {
         if (triggerMode == 'manual') {
@@ -279,7 +279,7 @@ export class AICompletionProvider implements InlineCompletionItemProvider, Dispo
         return delayTimeval;
     }
     /**
-     * 把LLM返回的补全结果转成内联补全项
+     * Convert the completion result returned by the LLM into inline completion items.
      */
     private toInlineCompletions(document: TextDocument, cp: CompletionPoint): InlineCompletionItem[] {
         let content = cp.getContent();
@@ -293,7 +293,7 @@ export class AICompletionProvider implements InlineCompletionItemProvider, Dispo
     }
 
     /**
-     * 当前编辑位置的文档相关信息，比如：文档名，文档路径，编程语言
+     * Information related to the document at the current editing position, such as document name, document path, and programming language.
      */
     private getDocumentInformation(document: TextDocument): CompletionDocumentInformation {
         return {
@@ -302,13 +302,13 @@ export class AICompletionProvider implements InlineCompletionItemProvider, Dispo
         }
     }
     /**
-     * 发起请求获取补全提示
+     * Initiate a request to get completion prompts.
      */
     private async doProvideInlineCompletionItems(
-        document: TextDocument, 
+        document: TextDocument,
         cp: CompletionPoint
     ): Promise<InlineCompletionItem[] | InlineCompletionList> {
-        //  超时时间过后，有了新的输入，当前补全点cp被最后一个补全点覆盖
+        // After the timeout, there is new input, and the current completion point cp is overwritten by the last completion point
         let latest = CompletionCache.getLatest();
         if (latest && !latest.isStrictSamePosition(cp)) {
             cp.cancel();
@@ -316,13 +316,13 @@ export class AICompletionProvider implements InlineCompletionItemProvider, Dispo
         }
         CompletionStatusBar.loading();
         cp.submit();
-        return CompletionClient.callApi(cp, 
+        return CompletionClient.callApi(cp,
             getHideScoreArgs(document, latest, cp)
         ).then((response) => {
             latest = CompletionCache.getLatest();
             if (latest && cp.id != latest.id) {
-                // 避免多个请求同时响应回来的时候 回显旧的请求补全内容
-                Logger.info(`补全[${cp.id}]：忽略补全结果，新补全[${latest.id}]位于[${latest.getKey()}]`);
+                // Avoid echoing the completion content of the old request when multiple requests respond simultaneously
+                Logger.info(`Completion [${cp.id}]: Ignore the completion result, the new completion [${latest.id}] is located at [${latest.getKey()}]`);
                 return Promise.resolve(([] as InlineCompletionItem[]));
             }
             if (!response) {
@@ -333,9 +333,9 @@ export class AICompletionProvider implements InlineCompletionItemProvider, Dispo
             return Promise.resolve(this.toInlineCompletions(document, cp));
         }).catch((error) => {
             if (cp.getAcception() == CompletionAcception.Canceled) {
-                Logger.info(`补全[${cp.id}]：请求被取消`);
+                Logger.info(`Completion [${cp.id}]: The request has been cancelled.`);
             } else {
-                Logger.error(`补全[${cp.id}]：获取补全内容失败`, error);
+                Logger.error(`Completion [${cp.id}]: Failed to get completion content`, error);
                 CompletionStatusBar.fail();
             }
             return Promise.reject(error);
@@ -343,10 +343,10 @@ export class AICompletionProvider implements InlineCompletionItemProvider, Dispo
     }
 
     /**
-     * 设置定时反馈信息的定时器，需要反馈几类信息：
-     * 1. 效果数据：用户是否接受补全内容；
-     * 2. 性能数据：补全请求端到端花费的时间，请求正常与否；
-     * 3. 改进数据：用户拒绝补全后实际输入的内容；
+     * Set a timer to provide feedback information regularly. Several types of information need to be fed back:
+     * 1. Effect data: Whether the user accepts the completion content.
+     * 2. Performance data: The end-to-end time spent on the completion request and whether the request is normal.
+     * 3. Improvement data: The actual content input by the user after rejecting the completion.
      */
     private setFeedbackTimer() {
         setInterval(() => {
@@ -356,7 +356,7 @@ export class AICompletionProvider implements InlineCompletionItemProvider, Dispo
     }
 
     /**
-     * 设置文档变更时的执行逻辑
+     * Set the execution logic when the document changes.
      */
     private setDidChangeTextDocument() {
         this.disposables.push(workspace.onDidChangeTextDocument(event => {
@@ -374,19 +374,19 @@ export class AICompletionProvider implements InlineCompletionItemProvider, Dispo
             if (!cur.isSameAsDoc(document, pos)) {
                 return;
             }
-            // 本次变更的文本
+            // The text changed this time
             let changeText = lastChange.text;
             if (lastChange.text) {
                 changeText = lastChange.text.trim();
             }
-            // 上次补全的文本
+            // The text of the last completion
             let completionText = cur.getContent();
             if (!changeText || !completionText) {
                 return;
             }
-            // 变更文本正好和补全文本相同，则说明用户接受了补全
+            // If the changed text is exactly the same as the completion text, it means the user has accepted the completion
             if (completionText.replace(/\r\n/g, '\n') == changeText.replace(/\r\n/g, '\n')) {
-                Logger.info(`补全[${cur.id}]：补全内容已被接受: ${changeText}`);
+                Logger.info(`Completion [${cur.id}]: The completion content has been accepted: ${changeText}`);
                 cur.accept();
                 if (this.timer) {
                     clearTimeout(this.timer);
@@ -395,59 +395,59 @@ export class AICompletionProvider implements InlineCompletionItemProvider, Dispo
             }
         }));
     }
-    /* 
-     * 设置代码采集定时器，用于采集用户拒绝补全后的实际输入代码
-     * 补全请求完成之后，延迟 timerDelay 秒上报用户实际编写代码
-     * 用户实际编写代码: 获取在光标之后与补全代码相同行数的代码，并排除文件原来已经存在的代码
-     * 如果用户没有进行修改或者没有补全就不上报
+    /*
+     * Set a code collection timer to collect the actual code input by the user after rejecting the completion.
+     * After the completion request is completed, report the actual code written by the user after a delay of timerDelay seconds.
+     * The actual code written by the user: Get the code on the same number of lines after the cursor as the completion code, and exclude the code that already exists in the file.
+     * If the user does not make any modifications or there is no completion, do not report.
     */
     private setCollectTimer(
-        document: TextDocument, 
-        cp: CompletionPoint, 
+        document: TextDocument,
+        cp: CompletionPoint,
         timerDelay: number
     ) {
-        Logger.info(`补全[${cp.id}]：启动一个 ${timerDelay}ms 后开始执行的 collectTimer`);
+        Logger.info(`Completion [${cp.id}]: Start a collectTimer that will execute after ${timerDelay}ms`);
 
         const completionText = cp.getContent();
         const pos = cp.pos;
-        // 获取补全行数
+        // Get the number of lines in the completion
         const completionsLineLength = completionText.split("\n").length - 1;
-        // 获取文档中光标之后的与补全行数相同行数的代码
+        // Get the code on the same number of lines after the cursor in the document as the completion code
         const originTotalLines = document.lineCount;
         const originText = document.getText(new Range(pos, document.lineAt(Math.min(originTotalLines - 1, pos.line + completionsLineLength)).range.end));
 
         setTimeout(() => {
-            Logger.info(`补全[${cp.id}]：collectTimer 开始执行`);
-            // 上报 接受补全 在光标之后 与补全代码相同行数的实际编写代码
+            Logger.info(`Completion [${cp.id}]: The collectTimer starts to execute.`);
+            // Report the actual code written after accepting the completion on the same number of lines after the cursor as the completion code.
             const actualTotalLines = document.lineCount;
             const actualText = document.getText(new Range(pos, document.lineAt(Math.min(actualTotalLines - 1, pos.line + completionsLineLength)).range.end));
 
-            // 如果实际代码与补全代码相同，说明接受了补全，不上报代码
+            // If the actual code is the same as the completion code, it means the completion has been accepted, and do not report the code.
             if (completionText && actualText && completionText.replace(/\r\n/g, '\n') == actualText.replace(/\r\n/g, '\n')) {
-                Logger.info('补全：实际代码与补全代码相同', actualText);
+                Logger.info('Completion: The actual code is the same as the completion code.', actualText);
                 cp.unchanged();
                 return;
             }
 
-            // 如果实际代码与源文件中的代码相同 说明没有进行修改，不上报代码
+            // If the actual code is the same as the code in the original file, it means no modification has been made, and do not report the code.
             if (originText.replace(/\r\n/g, '\n') == actualText.replace(/\r\n/g, '\n')) {
-                Logger.info('补全：实际代码与源文件中的代码相同', actualText);
+                Logger.info('Completion: The actual code is the same as the code in the original file.', actualText);
                 cp.reject();
                 cp.unchanged();
                 return;
             }
 
-            // 判断获取的实际代码是否存在源文件中的内容，如果存在，则去除
+            // Check if the obtained actual code contains content from the original file. If so, remove it.
             const actualRows = actualText.split("\n");
             const originRows = originText.split("\n");
 
             let uploadRows = [];
-            // 判断实际代码的最后一行不存在源文件，即，用户新输入的内容或补全的内容
+            // Check if the last line of the actual code does not exist in the original file, i.e., it is newly input content or completion content by the user.
             const actualLastRow = actualRows[actualRows.length - 1];
             if (!originRows.includes(actualLastRow)) {
                 uploadRows = actualRows;
             } else {
-                // 逐行比较实际代码是否存在源文件中
+                // Compare each line of the actual code to see if it exists in the original file.
                 for (let i = actualRows.length - 1; i >= 0; i--) {
                     const actualRow = actualRows[i];
                     if (!originRows.includes(actualRow)) {
@@ -455,17 +455,17 @@ export class AICompletionProvider implements InlineCompletionItemProvider, Dispo
                     }
                 }
             }
-            // 数据上报
+            // Data reporting
             if (uploadRows.length) {
                 const actualCode = uploadRows.join("\n");
                 cp.changed(actualCode);
-                Logger.info(`补全[${cp.id}]：补全内容被改变为: ${actualCode}`);
+                Logger.info(`Completion [${cp.id}]: The completion content has been changed to: ${actualCode}`);
             }
         }, timerDelay);
     }
 
     /**
-     * 创建代码补全点
+     * Create a code completion point.
      */
     private createCompletionPoint(document: TextDocument, pos: Position, triggerMode: string): CompletionPoint {
         const docInfo = this.getDocumentInformation(document);
@@ -475,7 +475,7 @@ export class AICompletionProvider implements InlineCompletionItemProvider, Dispo
     }
 
     /**
-     * 获取光标所在处的关联代码，用于后续补全
+     * Get the relevant code at the cursor position for subsequent completion.
      */
     private getPrompt(document: TextDocument, pos: Position): CompletionPrompt {
         const prefix = document.getText(new Range(new Position(0, 0), pos));

@@ -13,7 +13,7 @@ import { SELECTION_BG_COLOR, configCompletion } from "./constant";
 import { Logger } from "./log-util";
 
 /**
- * 打印启动提示
+ * Print startup message
  */
 export function printLogo(): void {
     const extension = vscode.extensions.getExtension('zgsm-ai.zgsm');
@@ -25,27 +25,27 @@ export function printLogo(): void {
      ███╔╝  ██╔══██║██║   ██║██║   ██║██╔══╝  ╚════╝██╔══██║██║
     ███████╗██║  ██║╚██████╔╝╚██████╔╝███████╗      ██║  ██║██║
     ╚══════╝╚═╝  ╚═╝ ╚═════╝  ╚═════╝ ╚══════╝      ╚═╝  ╚═╝╚═╝
-                                 by:诸葛神码团队
+                                 by:Zhuge Shenma Team
     vscode:       ${vscode.version}
-    zgsm-ai.zgsm: ${version} 
+    zgsm-ai.zgsm: ${version}
     `);
 }
 
 /**
- * 从某个HTML文件读取能被Webview加载的HTML内容
- * @param {*} context 上下文
- * @param {*} templatePath 相对于插件根目录的html文件相对路径
+ * Read HTML content that can be loaded by a Webview from an HTML file
+ * @param context Context
+ * @param templatePath Path to the html file relative to the plugin root directory
  */
 export async function getWebviewContent(
-    context: vscode.ExtensionContext, 
-    webview: vscode.Webview, 
+    context: vscode.ExtensionContext,
+    webview: vscode.Webview,
     templatePath: string
 ) {
     const resourcePath = path.join(context.extensionPath, templatePath);
     const dirPath = path.dirname(resourcePath);
     let html = await fs.readFileSync(resourcePath, 'utf-8');
 
-    // vscode不支持直接加载本地资源，需要替换成其专有路径格式
+    // VS Code does not support loading local resources directly, replace the path with its own path
     html = html.replace(/(<link.+?href="|<script.+?src="|<img.+?src=")(.+?)"/g, (m, $1, $2) => {
         const resource = webview.asWebviewUri(vscode.Uri.file(path.resolve(dirPath, $2)));
         return $1 + resource + '"';
@@ -56,13 +56,13 @@ export async function getWebviewContent(
 
 export let editorSelectionDecoration: vscode.TextEditorDecorationType | undefined;
 /**
- * 渲染背景颜色函数
- * @param selection 选中的文本范围，可选参数，默认为当前编辑器的选中范围
- * @param show 是否显示背景颜色，默认为false
- * @returns 无返回值
+ * Render background color function
+ * @param selection The selected text range, optional parameter, default is the current editor's selected range
+ * @param show Whether to display the background color, default is false
+ * @returns No return value
  * @example
- * renderBgColor(); // 清除旧的渲染
- * renderBgColor(selection, true); // 渲染选中文本的背景颜色为rgba(38, 79, 120)
+ * renderBgColor(); // Clear old rendering
+ * renderBgColor(selection, true); // Render the background color of the selected text as rgba(38, 79, 120)
  */
 export function renderBgColor(selection: vscode.Selection | undefined, show = false) {
     const editor = vscode.window.activeTextEditor;
@@ -88,10 +88,10 @@ export function renderBgColor(selection: vscode.Selection | undefined, show = fa
 }
 
 /**
- * 获取从startLine到endLine间的所有代码
+ * Get all code from startLine to endLine
  */
 export function getFullLineCode(editor: vscode.TextEditor, startLine: number, endLine: number): string {
-    // 按行选择代码
+    // Select code line by line
     const rangeToSelecteLine = new vscode.Range(
         new vscode.Position(startLine, 0),
         new vscode.Position(endLine, Number.MAX_VALUE)
@@ -102,14 +102,14 @@ export function getFullLineCode(editor: vscode.TextEditor, startLine: number, en
 }
 
 /**
- * 获取工作区根路径
+ * Get the root path of the workspace
  */
 export function getRootPath() {
     return vscode.workspace?.workspaceFolders?.[0].uri.fsPath || path.dirname(vscode.window.activeTextEditor?.document.fileName || "");
 }
 
 /**
- * 获取vscode临时目录/文件路径
+ * Get the path to the vscode temporary directory/file
  */
 export function getVscodeTempFileDir(fileName: string) {
     const rootPath = getRootPath();
@@ -117,7 +117,7 @@ export function getVscodeTempFileDir(fileName: string) {
 }
 
 /**
- * 把日志数据写入日志文件
+ * Write log data to a log file
  */
 export function writeLogsSync(fileName: string, content: string) {
     const tempDir = path.join(getRootPath(), ".vscode", "logs");
@@ -129,7 +129,7 @@ export function writeLogsSync(fileName: string, content: string) {
 }
 
 /**
- * 获取【代码补全】的配置
+ * Get the configuration for [Intelligent Code Completion]
  */
 export function getCompleteConfig(): vscode.WorkspaceConfiguration {
     const config = vscode.workspace.getConfiguration(configCompletion);
