@@ -10,8 +10,8 @@
  * @description This file contains the Logger class, which provides methods for logging messages with timestamps.
  * @version 1.0.0
  * @date 2024-07-22
- * @author 王政
- * 
+ * @author Wang Zheng
+ *
  * @example
  * Logger.log('This is a log message');
  * Logger.error('This is an error message');

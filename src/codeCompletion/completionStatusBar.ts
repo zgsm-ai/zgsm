@@ -13,18 +13,18 @@ import { Logger } from "../common/log-util";
 import { statusBarCommand, turnOffCompletion, turnOnCompletion } from "./completionCommands";
 
 /**
- * vscode右下角的状态条
+ * Status bar at the bottom right of vscode
  */
 export class CompletionStatusBar {
-    // 单例，保证全局唯一的实例
+    // Singleton to ensure a globally unique instance
     private static instance: StatusBarItem;
 
-    // 私有构造函数，防止外部实例化
+    // Private constructor to prevent external instantiation
     /* eslint-disable @typescript-eslint/no-empty-function */
     private constructor() { }
 
     /**
-     * 创建补全功能的状态条，需要再插件注册函数中调用
+     * Create the status bar for the completion feature, which needs to be called in the plugin registration function
      */
     public static create(context?: vscode.ExtensionContext): StatusBarItem {
         if (this.instance) {
@@ -33,8 +33,8 @@ export class CompletionStatusBar {
         const statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right);
         statusBar.command = statusBarCommand.command;
         if (!context) {
-            Logger.log("插件异常,completionStatusBar实例异常丢失");
-            throw new Error('插件异常,completionStatusBar实例异常丢失');
+            Logger.log("Plugin exception, completionStatusBar instance is abnormally lost");
+            throw new Error('Plugin exception, completionStatusBar instance is abnormally lost');
         }
         const statusUpdateCallback = (callback: any, showIcon: boolean) => async () => {
             await callback();
@@ -44,7 +44,7 @@ export class CompletionStatusBar {
                 statusBar.hide();
             }
         };
-        // 定义命令
+        // Define commands
         context.subscriptions.push(
             vscode.commands.registerCommand(statusBar.command, statusBarCommand.callback),
             vscode.commands.registerCommand(turnOnCompletion.command, statusUpdateCallback(turnOnCompletion.callback, true)),
@@ -52,54 +52,54 @@ export class CompletionStatusBar {
         );
 
         this.instance = statusBar;
-    
+
         return this.instance;
     }
 
     /**
-     * 根据配置初始化状态条显示的初始状态
+     * Initialize the initial display status of the status bar based on the configuration
      */
     public static initByConfig(suggestion_switch?: boolean) {
         if (suggestion_switch === undefined) {
             suggestion_switch = vscode.workspace.getConfiguration(configCompletion).get("enabled");
         }
-        this.instance.text = "$(check) 诸葛神码";
+        this.instance.text = "$(check) ZGSM";
         if (suggestion_switch) {
-            this.instance.tooltip = `诸葛神码-代码补全 - 已启用`;
+            this.instance.tooltip = `ZGSM - Code Completion - Enabled`;
         } else {
-            this.instance.tooltip = `诸葛神码-代码补全 - 已禁用`;
+            this.instance.tooltip = `ZGSM - Code Completion - Disabled`;
         }
         this.instance.show();
     }
 
     /**
-     * 正在等待请求结果
+     * Waiting for request results
      */
     public static loading() {
-        this.instance.tooltip = "诸葛神码-代码补全 - 等待请求结果";
-        this.instance.text = "$(loading~spin) 诸葛神码-进行中";
+        this.instance.tooltip = "ZGSM - Code Completion - Waiting for request results";
+        this.instance.text = "$(loading~spin) ZGSM - In Progress";
     }
 
     /**
-     * 补全完成
+     * Completion is done
      */
     public static complete() {
-        this.instance.tooltip = "诸葛神码-代码补全 - 补全完成";
-        this.instance.text = "$(check) 诸葛神码";
+        this.instance.tooltip = "ZGSM - Code Completion - Completed";
+        this.instance.text = "$(check) ZGSM";
     }
 
     /**
-     * 补全失败
+     * Completion failed
      */
     public static fail() {
-        this.instance.tooltip = "诸葛神码-代码补全 - 补全失败";
-        this.instance.text = "$(alert) 诸葛神码-异常";
+        this.instance.tooltip = "ZGSM - Code Completion - Failed";
+        this.instance.text = "$(alert) ZGSM - Exception";
     }
 
     /**
-     * 补全成功，但没有建议
+     * Completion succeeded, but no suggestions
      */
     public static noSuggest() {
-        this.instance.text = "$(check) 诸葛神码-无建议";
+        this.instance.text = "$(check) ZGSM - No Suggestions";
     }
 }

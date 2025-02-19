@@ -10,32 +10,32 @@ import { getRandomId } from "../common/util";
 import { CompletionPoint, calcKey } from "./completionPoint";
 
 /**
- * 补全点缓存
+ * Completion point cache
  */
 export class CompletionCache {
-    private static points = [] as CompletionPoint[];                //补全点列表
-    private static keys = new Map<string, CompletionPoint>();       //根据Key查找
-    private static ids = new Map<string, CompletionPoint>();        //根据ID查找
-    private static latest: CompletionPoint | undefined = undefined; //最新一个补全点
-    private static latestId = 0;                                    //自增的ID编号
+    private static points = [] as CompletionPoint[];                // Completion point list
+    private static keys = new Map<string, CompletionPoint>();       // Lookup by key
+    private static ids = new Map<string, CompletionPoint>();        // Lookup by ID
+    private static latest: CompletionPoint | undefined = undefined; // The latest completion point
+    private static latestId = 0;                                    // Incremental ID number
     /**
-     * 下一个补全请求ID
+     * The next completion request ID
      */
     private static nextId() {
         return `${this.latestId++}-${getRandomId(16)}`;
     }
     /**
-     * 根据位置查找补全点
+     * Look up the completion point by position
      */
     static lookup(fpath: string, line: number, column: number): CompletionPoint | undefined {
         let key = calcKey(fpath, line, column);
         return this.keys.get(key);
     }
     /**
-     *  缓存补全点
+     * Cache the completion point
      */
     static cache(cp: CompletionPoint): CompletionPoint {
-        let copy = new CompletionPoint(this.nextId(), 
+        let copy = new CompletionPoint(this.nextId(),
             cp.doc, cp.pos, cp.getPrompt(), cp.triggerMode, cp.createTime);
         this.points.push(copy);
         this.ids.set(copy.id, copy);
@@ -44,23 +44,23 @@ export class CompletionCache {
         return copy;
     }
     /**
-     * 获取最新补全点
+     * Get the latest completion point
      */
     static getLatest(): CompletionPoint | undefined {
         return this.latest;
     }
     /**
-     * 获取所有补全点
+     * Get all completion points
      */
     static all(): CompletionPoint[] {
         return this.points;
     }
     /**
-     * 从0开始清除cnt个补全点，最后一个不清除
+     * Clear cnt completion points starting from 0, and do not clear the last one
      */
     static erase(cnt: number) {
         if (cnt >= this.points.length) {
-            throw new RangeError("最后一个补全点不能删除");
+            throw new RangeError("The last completion point cannot be deleted");
         }
         for (let n = 0; n < cnt; n++) {
             const cp = this.points[n];

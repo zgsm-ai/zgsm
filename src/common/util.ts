@@ -13,7 +13,7 @@ import { createHash } from "crypto";
 import { Logger } from "./log-util";
 
 /**
- * 获取本地IP信息
+ * Get the local IP address
  */
 export function getLocalIP() {
     const interfaces = os.networkInterfaces();
@@ -21,28 +21,28 @@ export function getLocalIP() {
 
     for (const interfaceName in interfaces) {
         for (const iface of interfaces[interfaceName]) {
-            // 过滤掉内部环回地址和未分配的地址
+            // Filter out loopback and unassigned addresses
             if (iface.family === 'IPv4' && !iface.internal) {
                 ipAddress = iface.address;
                 break;
             }
         }
-        if (ipAddress) break; // 找到第一个有效的 IP 地址后退出
+        if (ipAddress) break; // Exit after finding the first valid IP address
     }
 
     return ipAddress || 'No IP found';
 }
 
 /**
- * 日期格式
+ * Date format
  */
 export enum DateFormat {
-    LITE = 1,       // 示例：2023-07-04 15:30:15
-    DETAIL = 2,     // 示例：2023-07-04 15:30:15.274
-    ISO = 3,        // 示例: 2025-01-14T08:00:00.000Z
+    LITE = 1,       // Example: 2023-07-04 15:30:15
+    DETAIL = 2,     // Example: 2023-07-04 15:30:15.274
+    ISO = 3,        // Example: 2025-01-14T08:00:00.000Z
 }
 /**
- * 格式化时间信息，支持三种格式(见DateFormat)
+ * Format time information in three formats (see DateFormat)
  */
 export function formatTime(dt: Date, format: DateFormat = DateFormat.ISO): string {
     if (!dt) {
@@ -51,9 +51,9 @@ export function formatTime(dt: Date, format: DateFormat = DateFormat.ISO): strin
     if (typeof dt === 'string') {
         dt = new Date(dt);
     }
-    if (format == DateFormat.ISO) {
-        const date = new Date(dt); // 创建 Date 对象
-        return date.toISOString(); // 转换为 ISO 8601 格式
+    if (format === DateFormat.ISO) {
+        const date = new Date(dt); // Create Date object
+        return date.toISOString(); // Convert to ISO 8601 format
     }
     const year = dt.getFullYear();
     const month = String(dt.getMonth() + 1).padStart(2, '0');
@@ -70,20 +70,20 @@ export function formatTime(dt: Date, format: DateFormat = DateFormat.ISO): strin
 }
 
 /**
- * 格式化时间差，如: 1d9h3m3s 
- * param differenceInMilliseconds: 时间差（毫秒）
+ * Format time difference, e.g., 1d9h3m3s
+ * param differenceInMilliseconds: Time difference (milliseconds)
  */
 export function formatTimeDifference(differenceInMilliseconds: number): string {
-    // 将毫秒转换为秒
+    // Convert milliseconds to seconds
     const totalSeconds = Math.floor(differenceInMilliseconds / 1000);
-    
-    // 计算天、小时、分钟和秒
+
+    // Calculate days, hours, minutes, and seconds
     const days = Math.floor(totalSeconds / (24 * 3600));
     const hours = Math.floor((totalSeconds % (24 * 3600)) / 3600);
     const minutes = Math.floor((totalSeconds % 3600) / 60);
     const seconds = totalSeconds % 60;
 
-    // 构建可读格式的字符串
+    // Build human-readable string
     let result = '';
     if (days > 0) {
         result += `${days}d`;
@@ -98,23 +98,23 @@ export function formatTimeDifference(differenceInMilliseconds: number): string {
         result += `${seconds}s`;
     }
 
-    // 如果没有时间差，返回“0s”
+    // Return '0s' if no time difference
     return result.trim() || '0s';
 }
 
 /**
- * 生成一个UUID
+ * Generate a UUID
  */
 export function getUuid() {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
         const r = (Math.random() * 16) | 0,
-            v = c == 'x' ? r : (r & 0x3) | 0x8;
+            v = c === 'x' ? r : (r & 0x3) | 0x8;
         return v.toString(16);
     });
 }
 
 /**
- * 返回一个指定长度的随机字符串
+ * Return a random string of specified length
  */
 export function getRandomId(len = 12) {
     const pattern = 'x'.repeat(len);
@@ -126,14 +126,14 @@ export function getRandomId(len = 12) {
 }
 
 /**
- * 计算字符串content的HASH
+ * Compute the hash of a string
  */
 export function computeHash(content: string): string {
     return createHash('sha256').update(content).digest('hex');
 }
 
 /**
- * 拷贝文件内容：把文件source中的内容拷贝到文件target中
+ * Copy file content: copy the content of file source to file target
  */
 export function copyFile(source: string, target: string) {
     try {
@@ -144,8 +144,8 @@ export function copyFile(source: string, target: string) {
     }
 }
 
-/** 
- * 防抖函数
+/**
+ * Debounce function
  */
 export function debounce(fn: Function, delay = 500) { // eslint-disable-line @typescript-eslint/ban-types
     let timer: string | number | NodeJS.Timeout | null | undefined;
@@ -161,7 +161,7 @@ export function debounce(fn: Function, delay = 500) { // eslint-disable-line @ty
 }
 
 /**
- * 节流函数
+ * Throttle function
  */
 export function throttle(fn: Function, delay = 300) { // eslint-disable-line @typescript-eslint/ban-types
     let lastCall = 0;
@@ -175,9 +175,9 @@ export function throttle(fn: Function, delay = 300) { // eslint-disable-line @ty
 }
 
 /**
- * 对电话号码进行遮掩处理
+ * Mask phone number
  */
 export function maskPhoneNumber(phone: string): string {
-    // 使用正则表达式替换中间四位数字为星号
+    // Replace the middle four digits with asterisks using a regular expression
     return phone.replace(/(\+86)(\d{3})\d{4}(\d{4})/, '$2****$3');
 }

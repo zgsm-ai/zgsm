@@ -6,39 +6,39 @@
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
  */
-//  补全：模型设置
+// Completion: Model settings
 export const settings = {
-    // 设置项中的fillmodel
+    // fillmodel in settings
     fillmodel: true,
-    // 设置项中的openai_model
+    // openai_model in settings
     openai_model: "fastertransformer",
-    // 设置项中的temperature
+    // temperature in settings
     temperature: 0.1,
 };
-//  补全：预设常量
+// Completion: Preset constants
 export const COMPLETION_CONST = {
-    allowableLanguages: ['vue', 'typescript', 'javascript', 'python', 'go', 
-        'c', 'c++', 'shell', 'bash', 'batch', 'lua', 'java', 'php', 'ruby'],    // 代码补全支持语言
-    codeCompletionLogUploadOnce: false, // 代码补全代码上传是否只上传一次
-    suggestionDelay: 300,               // 用户输入字符到执行触发请求的时间
-    lineRejectedDelayIncrement: 1000,   // 同一行刚发生拒绝后的延时增量(发生拒绝后延长一点等待时间，减少干扰)
-    lineRejectedDelayMax: 3000,         // 同一行刚发生拒绝后的延时最大值
-    manualTriggerDelay: 50,             // 手动触发补全的延时
-    feedbackInterval: 3000,             // 反馈定时器周期
-    collectInterval: 3000,              // 收集代码片段的定时器周期
+    allowableLanguages: ['vue', 'typescript', 'javascript', 'python', 'go',
+        'c', 'c++', 'shell', 'bash', 'batch', 'lua', 'java', 'php', 'ruby'],    // Supported languages for code completion
+    codeCompletionLogUploadOnce: false, // Whether to upload code completion logs only once
+    suggestionDelay: 300,               // Delay from user input to trigger request
+    lineRejectedDelayIncrement: 1000,   // Delay increment after rejection on the same line (increase wait time after rejection to reduce interference)
+    lineRejectedDelayMax: 3000,         // Maximum delay after rejection on the same line
+    manualTriggerDelay: 50,             // Delay for manual completion trigger
+    feedbackInterval: 3000,             // Feedback timer interval
+    collectInterval: 3000,              // Timer interval for collecting code snippets
 };
 
-// 插件id对应package.json中的publisher.name
+// Extension ID corresponds to publisher.name in package.json
 export const EXTENSION_ID = "zgsm-ai.zgsm";
 
-// vscode相关
+// VSCode related
 export const VSCODE_CONST = {
-    checkSpin: '$(check~spin)',  // √号图标
-    xSpin: '$(x~spin)',  // X号图标
-    loadingSpin: '$(loading~spin)',  // 加载中转圈图标
+    checkSpin: '$(check~spin)',  // Checkmark icon
+    xSpin: '$(x~spin)',  // X icon
+    loadingSpin: '$(loading~spin)',  // Loading spinner icon
 };
 
-// webview主题相关
+// Webview theme related
 export const WEBVIEW_THEME_CONST = {
     1: 'vs',
     2: 'vs-dark',
@@ -47,25 +47,25 @@ export const WEBVIEW_THEME_CONST = {
 };
 
 export const SELECTION_BG_COLOR = {
-    0: 'rgba(38, 79, 120, 1)',  // 默认
+    0: 'rgba(38, 79, 120, 1)',  // Default
     1: 'rgba(173, 214, 255, 1)',
     2: 'rgba(38, 79, 120, 1)',
     3: 'rgba(38, 79, 120, 1)',
     4: 'rgba(173, 214, 255, 1)'
 };
 
-// codelens按钮相关常量
+// Constants related to codelens buttons
 export const CODELENS_CONST = {
     rightMenu: "rightMenu",
     funcHead: "funcHead",
-    // 可以支持的编程语言
-    allowableLanguages: ['typescript', 'javascript', 'python', 'go', 
+    // Supported programming languages
+    allowableLanguages: ['typescript', 'javascript', 'python', 'go',
         'c', 'c++', 'lua', 'java', 'php', 'ruby']
-    // codeLensLanguages: ["c", "c++", "go", "python"],    //支持codeLens的编程语言
+    // codeLensLanguages: ["c", "c++", "go", "python"],    // Supported programming languages for codeLens
 };
 
 /**
- * codelens菜单项
+ * Codelens menu item
  */
 export interface CodelensItem {
     key: string;
@@ -74,62 +74,62 @@ export interface CodelensItem {
     command: string;
 }
 /**
- * codelens按钮  
- * 这里的key、actionName和package.json中对应，务必统一修改
+ * Codelens button
+ * The key, actionName here correspond to those in package.json, ensure consistency when modifying
  */
 export const CODELENS_FUNC: { [key: string]: CodelensItem } = {
     explain: {
         key: 'explain',
-        actionName: '解释代码',
-        tooltip: "解释代码实现",
+        actionName: 'Explain Code',
+        tooltip: "Explain code implementation",
         command: "vscode-zgsm.codelens_button",
     } as CodelensItem,
     addComment: {
         key: 'addComment',
-        actionName: '添加注释',
-        tooltip: "添加该函数注释",
+        actionName: 'Add Comments',
+        tooltip: "Add comments to this function",
         command: "vscode-zgsm.codelens_button",
     } as CodelensItem,
     addTests: {
         key: 'addTests',
-        actionName: '生成单测',
-        tooltip: "生成该函数单测",
+        actionName: 'Generate Unit Tests',
+        tooltip: "Generate unit tests for this function",
         command: "vscode-zgsm.codelens_button",
     } as CodelensItem,
     codeReview: {
         key: 'codeReview',
-        actionName: '代码审查',
-        tooltip: "检查代码是否有质量问题并给出修复建议",
+        actionName: 'Code Review',
+        tooltip: "Check for code quality issues and provide suggestions",
         command: "vscode-zgsm.codelens_button",
     } as CodelensItem,
     addDebugCode: {
         key: 'addDebugCode',
-        actionName: '增加日志',
-        tooltip: "提升排障能力，对关键逻辑步骤添加日志及调试代码",
+        actionName: 'Add Debug Code',
+        tooltip: "Enhance troubleshooting capabilities by adding logs and debug code to key logic steps",
         command: "vscode-zgsm.codelens_button",
     } as CodelensItem,
     addStrongerCode: {
         key: 'addStrongerCode',
-        actionName: '增加容错',
-        tooltip: "提升健壮性，增加异常处理、参数校验等",
+        actionName: 'Add Error Handling',
+        tooltip: "Enhance robustness by adding exception handling and parameter validation",
         command: "vscode-zgsm.codelens_button",
     } as CodelensItem,
     simplifyCode: {
         key: 'simplifyCode',
-        actionName: '精简代码',
-        tooltip: "删减无效代码",
+        actionName: 'Simplify Code',
+        tooltip: "Remove ineffective code",
         command: "vscode-zgsm.codelens_button",
     } as CodelensItem,
     performanceOptimization: {
         key: 'performanceOptimization',
-        actionName: '性能优化',
-        tooltip: "提升代码性能，给出修改建议，关注效率问题",
+        actionName: 'Performance Optimization',
+        tooltip: "Improve code performance, provide modification suggestions, focus on efficiency issues",
         command: "vscode-zgsm.codelens_button",
     } as CodelensItem,
     shenmaInstructSet: {
         key: 'shenmaInstructSet',
         actionName: `$(zhuge-shenma-icon)$(chevron-down)`,
-        tooltip: "神码指令集",
+        tooltip: "Shenma Instruction Set",
         command: "vscode-zgsm.codelens_more_button",
     } as CodelensItem
 };
@@ -137,11 +137,11 @@ export const CODELENS_FUNC: { [key: string]: CodelensItem } = {
 export const codeLensDiffCodeTempFileDir = "codeLensDiffCodeTempFileDir";
 export const noDirtyFile = "no dirty file";
 
-export const configShenmaName = "诸葛神码";
-export const configCompletion = "智能代码补全";
-export const configCodeLens = "函数快捷指令";
+export const configShenmaName = "Zhuge Shenma";
+export const configCompletion = "Intelligent Code Completion";
+export const configCodeLens = "Function Quick Commands";
 
-// 用户认证
+// User Authentication
 export const AUTH_TYPE = `zgsm-auth0`;
 export const AUTH_NAME = `Auth0`;
 export const SESSIONS_SECRET_KEY = `${AUTH_TYPE}.sessions`;

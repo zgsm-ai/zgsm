@@ -11,22 +11,22 @@ import { CompletionAcception } from "./completionDataInterface";
 import { CompletionPoint } from "./completionPoint";
 
 /**
- * 快速预判的计分数据
+ * Scoring data for quick pre - judgment.
  */
 export interface CompletionScores {
-    is_whitespace_after_cursor: boolean;    //光标后是否全部为空白符
-    prefix: string;                         //前缀代码
-    document_length: number;                //文档长度
-    prompt_end_pos: number;                 //光标在文档中的偏移量
-    previous_label: number;                 //上一次补全是否接受,1:接受,0:拒绝
-    previous_label_timestamp: number;       //上一次补全的时间戳
+    is_whitespace_after_cursor: boolean;    // Whether all characters after the cursor are whitespace characters.
+    prefix: string;                         // Prefix code.
+    document_length: number;                // Document length.
+    prompt_end_pos: number;                 // Offset of the cursor in the document.
+    previous_label: number;                 // Whether the previous completion was accepted, 1: accepted, 0: rejected.
+    previous_label_timestamp: number;       // Timestamp of the previous completion.
 }
 
 /**
- * 用于补全服务计算得分(用于快速过滤低质量请求,减少大模型推理工作量)
+ * Used for the completion service to calculate scores (used to quickly filter low - quality requests and reduce the inference workload of the large model).
  */
-export function getHideScoreArgs(document: TextDocument, 
-    latest: CompletionPoint|undefined, 
+export function getHideScoreArgs(document: TextDocument,
+    latest: CompletionPoint|undefined,
     cur: CompletionPoint
 ): CompletionScores {
     let previousLabel = 0;

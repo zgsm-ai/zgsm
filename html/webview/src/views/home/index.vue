@@ -3,19 +3,19 @@
  * @Date: 2024-05-23 10:26:37
  * @LastEditors: czc
  * @LastEditTime: 2024-10-14 10:15:55
- * @Descripttion: 
+ * @Descripttion:
 -->
 <template>
   <div class="qianliu-ai">
     <div class="intro-container" v-if="!chatList.length">
       <img class="ai-icon" src="@/assets/logo.png" />
-      <p class="ai-title">诸葛神码</p>
+      <p class="ai-title">ZGSM</p>
       <p class="ai-desc">
-        <span>智能编程助手</span>
+        <span>Intelligent Programming Assistant</span>
       </p>
 
       <div v-if="!display_name" class="login-btn">
-        <IxButton mode="primary" @click="login">登录</IxButton>
+        <IxButton mode="primary" @click="login">Login</IxButton>
       </div>
     </div>
     <Chat v-if="display_name" />
@@ -39,10 +39,10 @@ initConfig(getConfig)
 const chatStore = useChatStore()
 const { chatList, clearChat, setInputInfo, addChat, runChat } = chatStore
 
-const debounceRunChat = debounce(runChat) // 防抖处理的 runChat 方法
+const debounceRunChat = debounce(runChat) // Debounced runChat method
 
 /**
- * 收到来自IDE的消息
+ * Receive messages from the IDE
  * @author zbc
  */
 const receiveMessageFromIde = (message: any) => {
@@ -83,7 +83,7 @@ const receiveMessageFromIde = (message: any) => {
 }
 
 /**
- * 增加一个提问
+ * Add a question
  */
 const sendQuestion = (prompt: string) => {
   addChat({
@@ -109,28 +109,28 @@ const sendQuestion = (prompt: string) => {
   debounceRunChat()
 }
 
-// 登录
+// Login
 const login = () => {
   callBackIde('ide.login', {}, (data: any) => {
     setUser(data)
   })
 }
 
-// 登出
+// Logout
 const logout = () => {
   clearChat()
   setUser({})
 }
 
-// 代码块点击事件监听
+// Listen for code block click events
 addClickListener(sendQuestion)
-// 代码块复制事件监听
+// Listen for code block copy events
 addCopyCodeListener()
-// ide推送消息监听
+// Listen for IDE push messages
 registerIdeMessageListener(receiveMessageFromIde)
 
 onMounted(() => {
-  // 检验token是否过期，没过期直接登录，用户不再登录
+  // Check if the token has expired. If not, log in directly and the user doesn't need to log in again.
   callBackIde('ide.checkToken', {}, (data: any) => {
     setUser(data)
   })

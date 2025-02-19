@@ -18,8 +18,8 @@ import { CompletionScores } from './completionScore';
 import { CompletionTrace } from './completionTrace';
 
 /**
- * 补全客户端，处理和大模型API通讯的细节，向调用方屏蔽通讯细节。
- * 调用方可以和调用本地函数一样方便处理网络通讯。
+ * Completion client, which handles the details of communicating with the large model API and shields the communication details from the caller.
+ * The caller can handle network communication as conveniently as calling a local function.
  */
 export class CompletionClient {
     private static client: CompletionClient|undefined = undefined;
@@ -29,25 +29,25 @@ export class CompletionClient {
     private betaMode: any = undefined;
 
     /**
-     * 向LLM发起请求，获得补全点cp上的代码补全结果
+     * Send a request to the LLM to obtain the code completion result at the completion point cp.
      */
     public static async callApi(cp: CompletionPoint, scores: CompletionScores): Promise<string> {
         const client = this.getInstance();
         if (!client) {
-            return Promise.reject(new Error('配置异常'));
+            return Promise.reject(new Error('Configuration error'));
         }
         return client.doCallApi(cp, scores).then(response => {
-            Logger.log(`补全[${cp.id}]：请求成功`, response);
+            Logger.log(`Completion [${cp.id}]: Request succeeded`, response);
             cp.fetched(client.acquireCompletionText(response.data))
             CompletionTrace.reportApiOk();
             return Promise.resolve(cp.getContent());
         }).catch(err => {
             if (client.openai.axios.isCancel(err)) {
-                Logger.log(`补全[${cp.id}]：请求已取消`, err)
+                Logger.log(`Completion [${cp.id}]: Request cancelled`, err)
                 cp.cancel();
                 CompletionTrace.reportApiCancel();
             } else {
-                Logger.error(`补全[${cp.id}]：请求失败`, err);
+                Logger.error(`Completion [${cp.id}]: Request failed`, err);
                 this.client = undefined;
                 CompletionTrace.reportApiError(err.status);
             }
@@ -56,8 +56,9 @@ export class CompletionClient {
             client.reqs.delete(cp.id);
         });
     }
+
     /**
-     * 取消补全点cp发起的，但还没完成的请求
+     * Cancel the incomplete request initiated by the completion point cp.
      */
     public static cancelApi(cp: CompletionPoint) {
         const client = this.getInstance();
@@ -66,38 +67,40 @@ export class CompletionClient {
         }
         let value = client.reqs.get(cp.id);
         if (value) {
-            Logger.log(`请求[id=${cp.id}]被取消`);
-            value.cancel(`请求[id=${cp.id}]被取消`);
+            Logger.log(`Request [id=${cp.id}] cancelled`);
+            value.cancel(`Request [id=${cp.id}] cancelled`);
             client.reqs.delete(cp.id);
         }
     }
+
     /**
-     * 创建openai客户端，用于调用LLM的API
+     * Create an OpenAI client for calling the LLM API.
      */
     private createClient(force: boolean): boolean {
         if (this.openai && !force)
             return true;
         if (!envClient.apiKey) {
-            Logger.error('获取登录信息失败，请重新登录后使用补全服务', envClient);
-            window.showErrorMessage('获取登录信息失败，请重新登录后再使用补全服务');
+            Logger.error('Failed to get login information. Please log in again to use the completion service', envClient);
+            window.showErrorMessage('Failed to get login information. Please log in again to use the completion service');
             return false;
         }
-        // 配置实时生效
+        // The configuration takes effect in real time.
         let configuration = new Configuration({
             apiKey: envClient.apiKey
         });
         this.openai = new OpenAIApi(configuration, envSetting.completionUrl);
         if (!this.openai) {
-            Logger.error("补全：配置异常: configuration:", configuration, "openai: ", this.openai);
+            Logger.error("Completion: Configuration error: configuration:", configuration, "openai: ", this.openai);
             return false;
         }
         this.stopWords = workspace.getConfiguration(configCompletion).get("inlineCompletion") ? ["\n", "\r"] : [];
         this.betaMode = workspace.getConfiguration(configCompletion).get("betaMode");
-        Logger.info(`补全: 创建OpenAIApi客户端，URL: ${envSetting.completionUrl}, betaMode: ${this.betaMode}, stopWords: ${this.stopWords}`)
+        Logger.info(`Completion: Create OpenAIApi client, URL: ${envSetting.completionUrl}, betaMode: ${this.betaMode}, stopWords: ${this.stopWords}`)
         return true;
     }
+
     /**
-     * 客户端采用单实例
+     * The client uses a single instance.
      */
     private static getInstance(): CompletionClient|undefined {
         if (!this.client) {
@@ -108,8 +111,9 @@ export class CompletionClient {
         }
         return this.client;
     }
+
     /**
-     * 从LLM返回结果中获取补全内容
+     * Obtain the completion content from the result returned by the LLM.
      */
     private acquireCompletionText(resp: CreateCompletionResponse): string {
         if (!resp || !resp.choices || resp.choices.length === 0) {
@@ -128,26 +132,27 @@ export class CompletionClient {
         if (!text) {
             return "";
         }
-        //  因为中文占用3个字节，所以插件可能会受Max Tokens影响，在结果返回时最后一个中文只返回了一半，导致出现乱码，
-        //  需要将乱码替换为''
+        // Since Chinese characters occupy 3 bytes, the plugin may be affected by Max Tokens. When the result is returned, only half of the last Chinese character is returned, resulting in garbled characters.
+        // The garbled characters need to be replaced with ''.
         if (text.includes('�')) {
             text = text.replace(/�/g, '');
         }
         return text;
     }
+
     /**
-     * 代码补全发起请求
+     * Initiate a request for code completion.
      */
-    private async doCallApi(cp: CompletionPoint, 
+    private async doCallApi(cp: CompletionPoint,
         scores: CompletionScores
     ): Promise<AxiosResponse<CreateCompletionResponse, any>> {
-        // 遍历所有的请求，有新的话则取消旧的请求
+        // Traverse all requests. If there is a new one, cancel the old request.
         for (const [key, value] of this.reqs) {
-            Logger.log(`补全：请求被取消 id: ${key}`);
-            value.cancel(`请求被取消 id: ${key}`);
+            Logger.log(`Completion: Request cancelled id: ${key}`);
+            value.cancel(`Request cancelled id: ${key}`);
         }
-        Logger.log(`补全[${cp.id}]：发送API请求`);
-        // 获取当前axios的请求的取消对象
+        Logger.log(`Completion [${cp.id}]: Send API request`);
+        // Get the cancellation object of the current Axios request.
         const cancelTokenSource = this.openai.axios.CancelToken.source();
         this.reqs.set(cp.id, cancelTokenSource);
         const headers = createAuthenticatedHeaders();

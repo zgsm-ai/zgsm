@@ -31,7 +31,7 @@ export default defineConfig((env) => {
       proxy: {
         '/chat': {
           target: viteEnv.VITE_APP_API_BASE_URL,
-          changeOrigin: true, // 允许跨域
+          changeOrigin: true, // Allow cross-origin requests
         }
       }
     }
