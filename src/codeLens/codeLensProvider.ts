@@ -13,7 +13,7 @@ import { Logger } from "../common/log-util";
 import { LangSetting, LangSwitch, getLanguageByFilePath } from "../common/lang-util";
 
 /**
- * codelens(符号定义的头部菜单组)的服务提供者
+ * Service provider for codelens (header menu group for symbol definitions)
  */
 export class MyCodeLensProvider implements vscode.CodeLensProvider {
     async provideCodeLenses(document: vscode.TextDocument, token: vscode.CancellationToken) {
@@ -29,7 +29,7 @@ export class MyCodeLensProvider implements vscode.CodeLensProvider {
         if (sw === LangSwitch.Disabled || sw === LangSwitch.Unsupported) {
             return [];
         }
-        // 校验这个view是否需要展示codelens按钮
+        // Check if this view needs to display codelens buttons
         const langClass = getLanguageClass(language);
         const checkResult = langClass.checkCodelensEnabled();
         if (!checkResult) {
@@ -37,9 +37,9 @@ export class MyCodeLensProvider implements vscode.CodeLensProvider {
         }
 
         const results: any[] = [];
-        const config = vscode.workspace.getConfiguration(`函数快捷指令.函数上方展示的快捷指令按钮`);
+        const config = vscode.workspace.getConfiguration(`Quick Commands.Quick command buttons displayed above functions`);
 
-        //  获取配置中需要显示的codeLens按钮
+        // Get the codeLens buttons that need to be displayed from the configuration
         const configCodelensDicts = Object.entries(CODELENS_FUNC)
             .filter(([key, value]) => config.get<boolean>(key))
             .reduce((acc, [key, value]) => {
@@ -48,7 +48,7 @@ export class MyCodeLensProvider implements vscode.CodeLensProvider {
             }, {} as Record<string, typeof CODELENS_FUNC[keyof typeof CODELENS_FUNC]>);
 
         if (Object.keys(configCodelensDicts).length === 0) {
-            Logger.log("未配置任何快捷指令");
+            Logger.log("No quick commands are configured");
             return results;
         }
 
@@ -60,17 +60,17 @@ export class MyCodeLensProvider implements vscode.CodeLensProvider {
             return docSymbols;
         })(editor);
         if (!docSymbols || 0 === docSymbols.length) {
-            Logger.log("未解析出任何DocumentSymbol,无codelens");
+            Logger.log("No DocumentSymbol was parsed, no codelens");
             return [];
         }
 
         const showableSymbols = langClass.getShowableSymbols(docSymbols);
         for (const documentSymbol of showableSymbols) {
             for (const [key, codelensItem] of Object.entries(configCodelensDicts)) {
-                // 判断可以展示的按钮，这里又根据语言区分又根据场景区分
+                // Determine which buttons can be displayed, which may vary by language and context
                 if (!langClass.checkItemShowable(codelensItem, documentSymbol))
                     continue;
-                const range = new vscode.Range(documentSymbol.range.start.line, 0, 
+                const range = new vscode.Range(documentSymbol.range.start.line, 0,
                     documentSymbol.range.start.line, 0);
                 results.push(new vscode.CodeLens(range, {
                     title: codelensItem.actionName,

@@ -9,7 +9,7 @@
 import { CODELENS_FUNC } from "../common/constant";
 
 /**
- * 对话视图的菜单项
+ * Menu items for the chat view
  */
 export interface ChatMenuItem {
     command: string;
@@ -17,8 +17,9 @@ export interface ChatMenuItem {
     actionName: string;
     category: string;
 }
+
 /**
- * 对话视图的右键菜单项
+ * Right-click menu items for the chat view
  */
 export const rightMenus: ChatMenuItem[] = [
     {

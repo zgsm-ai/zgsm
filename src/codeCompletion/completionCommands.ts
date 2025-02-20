@@ -13,7 +13,7 @@ import { setupLangSwitchs } from "../common/services";
 export type Command = { command: string, callback: (...args: any[]) => any, thisArg?: any; };
 
 /**
- * 补全状态栏项添加一个命令
+ * Add a command to the completion status bar item.
  */
 export const statusBarCommand: Command = {
     command: "statusBar.showInformationMessage",
@@ -21,17 +21,17 @@ export const statusBarCommand: Command = {
 };
 
 /**
- * 设置补全扩展的启用状态
+ * Set the enabled status of the completion extension.
  */
 function setExtensionStatus(enabled: boolean) {
     const config = vscode.workspace.getConfiguration();
     const target = vscode.ConfigurationTarget.Global;
-    Logger.info("设置zgsm-completion.enabled状态为", enabled);
+    Logger.info("Set the status of 'zgsm-completion.enabled' to", enabled);
     config.update('zgsm-completion.enabled', enabled, target, false).then(console.error);
 }
 
 /**
- * 启用补全命令
+ * Command to enable completion.
  */
 export const turnOnCompletion: Command = {
     command: "zgsm-completion.enable",
@@ -39,7 +39,7 @@ export const turnOnCompletion: Command = {
 };
 
 /**
- * 禁用补全命令
+ * Command to disable completion.
  */
 export const turnOffCompletion: Command = {
     command: "zgsm-completion.disable",
@@ -47,7 +47,7 @@ export const turnOffCompletion: Command = {
 };
 
 /**
- * 补全快捷指令命令
+ * Command for completion shortcut instructions.
  */
 export const shortKeyCut: Command = {
     command: "zgsm-completion.shortKeyCut",

@@ -3,7 +3,7 @@ import { maskPhoneNumber } from "@/utils/common";
 import { defineStore } from 'pinia';
 
 /**
- * 从IDE获取的配置信息
+ * Configuration information obtained from the IDE
  */
 interface IdeConfig {
     chatUrl: string;
@@ -13,84 +13,85 @@ interface IdeConfig {
     hostIp?: string;
     model?: string;
 }
+
 /**
- * 用户信息接口
- */ 
+ * Interface for user information
+ */
 export interface UserInfo {
-    avatar: string;         // 用户头像
-    avatar_color: string;   // 头像颜色
-    name: string;           // 用户姓名
-    username: string;       // 用户名
-    display_name: string;   // 显示名称(默认是username，允许修改)
-    description: string;    // 用户描述
-    is_admin: boolean;      // 是否为管理员
-    token: string;          // 令牌（access_token)
+    avatar: string;         // User avatar
+    avatar_color: string;   // Avatar color
+    name: string;           // User's full name
+    username: string;       // Username
+    display_name: string;   // Display name (default is username, can be modified)
+    description: string;    // User description
+    is_admin: boolean;      // Whether the user is an administrator
+    token: string;          // Token (access_token)
 }
 
-// 应用配置接口
+// Interface for application configuration
 interface AppConfig {
-    chatUrl: string;        // 诸葛神码对话服务 URL
-    model: string;          // 模型名称
+    chatUrl: string;        // URL of the ZGSM chat service
+    model: string;          // Model name
 }
 
-//  客户端设置
+// Client settings
 interface ClientConfig {
-    ide: string;            // IDE 名称
-    extVersion: string;     // 诸葛神码插件版本号
-    ideVersion: string;     // IDE版本号
-    hostIp: string;         // 客户端所在主机的IP地址
+    ide: string;            // Name of the IDE
+    extVersion: string;     // Version number of the ZGSM plugin
+    ideVersion: string;     // Version number of the IDE
+    hostIp: string;         // IP address of the client host
 }
 
-// 配置状态接口
+// Interface for configuration state
 export interface ConfigState {
-    userInfo: UserInfo;     // 用户信息
-    appConfig: AppConfig;   // 应用配置
-    clientConfig: ClientConfig; // 客户端配置
-    spinning: boolean;      // 加载状态
+    userInfo: UserInfo;     // User information
+    appConfig: AppConfig;   // Application configuration
+    clientConfig: ClientConfig; // Client configuration
+    spinning: boolean;      // Loading state
 }
 
-// 定义 Pinia 存储
+// Define the Pinia store
 export const useConfigStore = defineStore('auth-store', {
-    // 状态初始化
+    // State initialization
     state: (): ConfigState => ({
-        userInfo: {} as UserInfo, // 初始化用户信息
-        appConfig: {} as AppConfig, // 初始化应用配置
-        clientConfig: {} as ClientConfig, // 初始化客户端配置
-        spinning: true // 初始化加载状态
+        userInfo: {} as UserInfo, // Initialize user information
+        appConfig: {} as AppConfig, // Initialize application configuration
+        clientConfig: {} as ClientConfig, // Initialize client configuration
+        spinning: true // Initialize the loading state
     }),
 
     actions: {
-        // 获取配置
+        // Get the configuration
         getConfig() {
-            // 从 IDE 回调获取配置
+            // Get the configuration through the IDE callback
             callBackIde('ide.getConfig', {}, (data: IdeConfig) => {
-                // 合并新配置到当前配置
+                // Merge the new configuration into the current configuration
                 this.appConfig.chatUrl = data.chatUrl;
                 this.appConfig.model = data.model ?? "";
                 this.clientConfig.ide = data.ide;
                 this.clientConfig.ideVersion = data.ideVersion;
                 this.clientConfig.extVersion = data.extVersion;
                 this.clientConfig.hostIp = data.hostIp ?? "";
-                console.log("getConfig data", data, 
+                console.log("getConfig data", data,
                     "app:", this.appConfig, "client:", this.clientConfig, "user:", this.userInfo);
             });
         },
-        // 更新服务器地址配置
+        // Update the server address configuration
         updateConfig(config: Partial<AppConfig>) {
             if (config.chatUrl) {
                 this.appConfig.chatUrl = config.chatUrl;
             }
             console.log("updateConfig", config)
         },
-        // 获取主题颜色配置
+        // Get the theme color configuration
         getThemeColor() {
             callBackIde('ide.getThemeColor', null, (data: any) => {
                 this.changeTheme(data);
             });
         },
-        // 更新主题颜色
+        // Update the theme color
         changeTheme(data: any) {
-            // jetbrains light主题 返回的配色有问题，这里特殊处理
+            // There is a problem with the color scheme returned by the JetBrains light theme. Handle it specially here.
             if (data.currentThemeName && data.currentThemeName.toLowerCase() === 'light') {
                 data = {
                     currentThemeName: 'light',
@@ -119,10 +120,10 @@ export const useConfigStore = defineStore('auth-store', {
             document.documentElement.style.setProperty('--scroll-bg-color', this.formatColor(data['scrollBgColor']));
             document.documentElement.style.setProperty('--border-color', this.formatColor(data['borderColor']));
         },
-        // 提取颜色
+        // Extract the color
         formatColor(colorStr: string, key?: string) {
             const rgbValues = colorStr ? colorStr.match(/\d+/g) || [] : [];
-            // 将RGB值转换为整数
+            // Convert RGB values to integers
             const r = parseInt(rgbValues[0]);
             const g = parseInt(rgbValues[1]);
             const b = parseInt(rgbValues[2]);
@@ -133,11 +134,11 @@ export const useConfigStore = defineStore('auth-store', {
                     return `rgb(${48}, ${48}, ${48})`;
                 }
             }
-            // 组装成rgb格式
+            // Assemble into RGB format
             const rgbStr = `rgb(${r}, ${g}, ${b})`;
             return rgbStr;
         },
-        // 更新用户信息
+        // Update user information
         setUser(data: Partial<UserInfo>) {
             this.userInfo.username = data.username || '';
             this.userInfo.token = data.token || '';
@@ -147,7 +148,7 @@ export const useConfigStore = defineStore('auth-store', {
             console.log("setUser: ", data, "=>", this.userInfo)
         },
 
-        // 关闭加载状态
+        // Turn off the loading state
         closeSpinning() {
             this.spinning = false;
         }

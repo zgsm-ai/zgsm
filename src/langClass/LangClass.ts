@@ -10,17 +10,17 @@ import * as vscode from 'vscode';
 import { CodelensItem } from '../common/constant';
 
 /**
- * 语言类接口，根据编程语言的不同，对codelens进行不同的处理
+ * Language class interface, which processes codelens differently based on the programming language
  */
 export interface LangClass {
-    //  检查该文档是否需要显示codelens按钮
+    // Check if the quick function menu needs to be displayed
     checkCodelensEnabled(): boolean;
-    //  获取可以显示codelens按钮的符号列表(语言级别的粗过滤)
+    // Retrieve the list of symbols that can display codelens based on the programming language (coarse filtering)
     getShowableSymbols(docSymbols: vscode.DocumentSymbol[]): vscode.DocumentSymbol[];
-    //  确认某个符号是否允许显示codelens
+    // Check whether a symbol is allowed to display codelens
     isShowableSymbol(docSymbol: vscode.DocumentSymbol): boolean;
-    //  检查这个符号是否允许显示某个codelens菜单项(细过滤)
+    // Inspect if a symbol can display a specific codelens menu item (fine filtering)
     checkItemShowable(item: CodelensItem, documentSymbol: vscode.DocumentSymbol): boolean;
-    //  获取codelens菜单项消息的额外参数
+    // Retrieve extra arguments for codelens menu items
     codelensGetExtraArgs(document: vscode.TextDocument, range: any, codelensArgs: any): any;
 }

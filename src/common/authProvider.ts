@@ -15,7 +15,7 @@ import { ChatViewProvider } from "../chatView/chat-view-provider";
 import { envSetting, envClient, updateApiKey } from "./env";
 
 /**
- * 构建请求头部(无认证信息)
+ * Build request headers (without authentication information)
  */
 function createHeaders(dict: Record<string, any> = {}): Record<string, any> {
     const headers = {
@@ -88,7 +88,7 @@ class UriEventHandler extends EventEmitter<Uri> implements UriHandler {
 }
 
 /**
- * 使用OAUTH协议和后台进行用户认证
+ * Use the OAUTH protocol for user authentication with the backend
  */
 export default class Auth0AuthenticationProvider implements AuthenticationProvider, Disposable {
     private static instance: Auth0AuthenticationProvider;
@@ -105,12 +105,12 @@ export default class Auth0AuthenticationProvider implements AuthenticationProvid
         );
     }
 
-    // 单例，保证全局唯一的实例，其他地方使用调用该函数获取实例
+    // Singleton to ensure a globally unique instance. Use this function to get the instance elsewhere.
     public static getInstance(context?: ExtensionContext): Auth0AuthenticationProvider {
         if (!Auth0AuthenticationProvider.instance) {
             if (!context) {
-                Logger.log("插件异常,Auth0AuthenticationProvider实例异常丢失");
-                throw new Error('插件异常,Auth0AuthenticationProvider实例异常丢失');
+                Logger.log("Plugin exception, Auth0AuthenticationProvider instance is abnormally lost");
+                throw new Error('Plugin exception, Auth0AuthenticationProvider instance is abnormally lost');
             }
             Auth0AuthenticationProvider.instance = new Auth0AuthenticationProvider(context);
         }
@@ -122,9 +122,9 @@ export default class Auth0AuthenticationProvider implements AuthenticationProvid
     }
 
     /**
-     * Get the existing sessions
-     * @param scopes 
-     * @returns 
+     * Get existing sessions
+     * @param scopes
+     * @returns
      */
     public async getSessions(): Promise<readonly AuthenticationSession[]> {
         const allSessions = await this.context.secrets.get(SESSIONS_SECRET_KEY);
@@ -138,8 +138,8 @@ export default class Auth0AuthenticationProvider implements AuthenticationProvid
 
     /**
      * Create a new auth session
-     * @param scopes 
-     * @returns 
+     * @param scopes
+     * @returns
      */
     public async createSession(): Promise<AuthenticationSession> {
         try {
@@ -168,7 +168,7 @@ export default class Auth0AuthenticationProvider implements AuthenticationProvid
 
     /**
      * Remove an existing session
-     * @param sessionId 
+     * @param sessionId
      */
     public async removeSession(sessionId: string): Promise<void> {
         const allSessions = await this.context.secrets.get(SESSIONS_SECRET_KEY);
@@ -192,9 +192,9 @@ export default class Auth0AuthenticationProvider implements AuthenticationProvid
         this._disposable.dispose();
     }
 
-	/**
-	 *  保存access_token相关信息
-	 */
+    /**
+     * Save access_token related information
+     */
     private async storeToken(token: any) {
         if (token.access_token !== undefined) {
             updateApiKey(token.access_token);
@@ -203,14 +203,14 @@ export default class Auth0AuthenticationProvider implements AuthenticationProvid
         }
         await this.context.secrets.store(ACCESS_TOKEN_KEY, JSON.stringify(token));
     }
-    
+
     /**
      * Log in to Auth0
      */
     public async login() {
         return await window.withProgress<string>({
             location: ProgressLocation.Notification,
-            title: "请登录后使用诸葛神码",
+            title: "Please log in to use Zhuge Shenn码",
             cancellable: true
         }, async (_, token) => {
             const stateId = getRandomId(12);
@@ -260,18 +260,18 @@ export default class Auth0AuthenticationProvider implements AuthenticationProvid
     }
 
     /**
-     * 注销登录
+     * Log out
      */
     public async logout() {
         try {
             const session = await this.context.secrets.get(ACCESS_TOKEN_KEY);
             if (!session) {
-                window.showInformationMessage('请先登录');
+                window.showInformationMessage('Please log in first');
                 return;
             }
             const tokenData = JSON.parse(session);
             if (!tokenData || !tokenData.refresh_token) {
-                window.showInformationMessage('请先登录');
+                window.showInformationMessage('Please log in first');
                 return;
             }
             const res = await axios.post(envSetting.logoutUrl,
@@ -289,12 +289,12 @@ export default class Auth0AuthenticationProvider implements AuthenticationProvid
             Logger.log('logout', res.headers, res.data);
             await this.context.secrets.store(ACCESS_TOKEN_KEY, '{}');
         } catch (err) {
-            Logger.log('注销失败：', err);
+            Logger.log('Logout failed:', err);
         }
     }
 
     /**
-     * 获取access_token
+     * Get access_token
      */
     public async fetchToken(params: any) {
         try {
@@ -315,7 +315,7 @@ export default class Auth0AuthenticationProvider implements AuthenticationProvid
             if (axios.isAxiosError(err)) {
                 Logger.error('fetchToken: Axios error:', err.message);
                 if (err.response) {
-                    // 请求已发出，服务器响应了状态码
+                    // Request was made and the server responded with a status code
                     Logger.error('Response headers:', err.response.headers);
                     switch (err.response?.status) {
                     case 400:
@@ -338,20 +338,20 @@ export default class Auth0AuthenticationProvider implements AuthenticationProvid
                         'status': err.response.status
                     }
                 } else if (err.request) {
-                    // 请求已发出，但没有收到响应
+                    // Request was made but no response was received
                     Logger.error('Request data:', err.request);
                     return {
                         'status': 504
                     }
                 } else {
-                    // 其他错误
+                    // Other errors
                     Logger.error('Error message:', err.message);
                     return {
                         'status': 408
                     }
                 }
             } else {
-                // 处理其他类型的错误
+                // Handle other types of errors
                 Logger.error('fetchToken: Unexpected error:', err);
                 return {
                     'status': 408
@@ -362,8 +362,8 @@ export default class Auth0AuthenticationProvider implements AuthenticationProvid
 
     /**
      * Handle the redirect to VS Code (after sign in from Auth0)
-     * @param scopes 
-     * @returns 
+     * @param scopes
+     * @returns
      */
     private handleUri: (scopes: readonly string[]) => PromiseAdapter<Uri, string> =
         (scopes) => async (uri, resolve, reject) => {
@@ -399,13 +399,13 @@ export default class Auth0AuthenticationProvider implements AuthenticationProvid
                     } else {
                         this.storeToken({});
                         resolve('');
-                        window.showErrorMessage('登录出错，请重新登录！');
+                        window.showErrorMessage('Login failed, please log in again!');
                     }
                 }
             }
         };
 
-    // 每次获取新 access_token 后，根据 expires_in 设置过期时间 5min 前，添加定时器刷新 token
+    // After obtaining a new access_token, set a timer to refresh the token 5 minutes before the expires_in time
     private async createRefreshTokenListener(tokenData: any) {
         const expires_time = tokenData.expires_in * 1000 - 5 * 60 * 1000;
         setTimeout(async () => {
@@ -414,7 +414,7 @@ export default class Auth0AuthenticationProvider implements AuthenticationProvid
     }
 
     /**
-     * 更新secrets中保存的access_token数据，成功返回刷新后的access_token，失败返回null
+     * Update the access_token data saved in secrets. Return the refreshed access_token on success, or null on failure
      */
     private async refreshToken(tokenData: any) {
         const params = {
@@ -429,7 +429,7 @@ export default class Auth0AuthenticationProvider implements AuthenticationProvid
             ChatViewProvider.getInstance().sendMessage({
                 action: 'ide.logout'
             });
-            window.showErrorMessage('登录已失效，请重新登录！');
+            window.showErrorMessage('Login has expired, please log in again!');
             return null;
         } else if (res.status == 200) {
             const data = res.data;
@@ -441,7 +441,7 @@ export default class Auth0AuthenticationProvider implements AuthenticationProvid
                 return access_token;
             }
         }
-        // 登录临时性失败，30秒后重试一遍
+        // Temporary login failure, retry after 30 seconds
         setTimeout(async () => {
             this.refreshToken(tokenData);
         }, 30000);
@@ -449,8 +449,8 @@ export default class Auth0AuthenticationProvider implements AuthenticationProvid
     }
 
     /**
-     * 检查access_token是否依然有效
-     * 如果已经失效，则发起请求，利用refresh_token更新access_token
+     * Check if the access_token is still valid
+     * If it has expired, initiate a request to update the access_token using the refresh_token
      */
     public async checkToken() {
         const session = await this.context.secrets.get(ACCESS_TOKEN_KEY);
@@ -464,7 +464,7 @@ export default class Auth0AuthenticationProvider implements AuthenticationProvid
     }
 
     /**
-     * 获取已保存在安全存储上的access_token
+     * Get the access_token saved in secure storage
      */
     public async getAccessToken() {
         const session = await this.context.secrets.get(ACCESS_TOKEN_KEY);
@@ -478,7 +478,7 @@ export default class Auth0AuthenticationProvider implements AuthenticationProvid
     }
 
     /**
-     * 根据token，获取保存在token中的用户名
+     * Get the username saved in the token based on the token
      */
     public static getUsername(token: string) {
         const userInfoBase64 = token.split(".")[1];

@@ -19,9 +19,9 @@ import { getFullLineCode, getVscodeTempFileDir, getWebviewContent } from "../com
 import { getLanguageByFilePath } from "../common/lang-util";
 
 export class ChatViewProvider implements vscode.WebviewViewProvider {
-    private static instance: ChatViewProvider;          // 单例，保证全局唯一的实例
-    public webView: vscode.WebviewView | null = null;   // 网页视图，用于IDE与对话页面(网页)交互
-    private callBackMap: Map<string, any> = new Map();  // 回调函数map: 收到了来自webview的消息，需要通过回调反馈结果
+    private static instance: ChatViewProvider;          // Singleton, ensuring a globally unique instance
+    public webView: vscode.WebviewView | null = null;   // Web view for interaction between the IDE and the chat page (webpage)
+    private callBackMap: Map<string, any> = new Map();  // Callback function map: When receiving a message from the webview, the result needs to be fed back through the callback
     private leftOverMessage?: any;
 
     constructor(public context: vscode.ExtensionContext) {
@@ -33,12 +33,12 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
         this.changeActiveColorTheme();
     }
 
-    // 单例，保证全局唯一的实例，其他地方使用调用该函数获取实例
+    // Singleton, ensuring a globally unique instance. Other places use this function to get the instance
     public static getInstance(context?: vscode.ExtensionContext): ChatViewProvider {
         if (!ChatViewProvider.instance) {
             if (!context) {
-                Logger.log("插件异常,ChatViewProvider实例异常丢失");
-                throw new Error('插件异常,ChatViewProvider实例异常丢失');
+                Logger.log("Plugin error, ChatViewProvider instance is unexpectedly lost");
+                throw new Error('Plugin error, ChatViewProvider instance is unexpectedly lost');
             }
             ChatViewProvider.instance = new ChatViewProvider(context);
         }
@@ -56,13 +56,13 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
             ]
         };
 
-        webviewView.webview.html = await getWebviewContent(this.context, 
+        webviewView.webview.html = await getWebviewContent(this.context,
             webviewView.webview, 'html/webview/dist/index.html');
 
         webviewView.webview.onDidReceiveMessage(async message => {
             /* eslint-disable */
             switch (message.action) {
-            // 获取配置信息
+            // Get configuration information
             case 'ide.getConfig':
                 this.invokeCallback(message, {
                     chatUrl: envSetting.chatUrl,
@@ -73,15 +73,15 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
                     model: this.context.globalState.get("model") ?? ''
                 });
                 break;
-            // 右下角通知
+            // Notification in the lower right corner
             case 'ide.notification':
                 this.doNotification(message);
                 break;
-            // 把ai代码插入到编辑器中
+            // Insert AI code into the editor
             case 'ide.insertCode':
                 this.insertCode(message.params);
                 break;
-            // 把ai代码用新文件打开
+            // Open AI code in a new file
             case 'ide.openNew':
                 const document = await vscode.workspace.openTextDocument({
                     content: message.value,
@@ -89,50 +89,50 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
                 });
                 vscode.window.showTextDocument(document);
                 break;
-            // 获取选中代码
+            // Get the selected code
             case 'ide.getSelectCode':
                 this.doGetSelectCode(message);
                 break;
-            // 获取主题色系
+            // Get the theme color scheme
             case 'ide.getThemeKind':
-                // 主题色系分为两种：vs、vs-dark，自定义的色系默认返回vs-dark
+                // The theme color schemes are divided into two types: vs, vs-dark. Custom color schemes default to vs-dark
                 let activeColorThemeKind = WEBVIEW_THEME_CONST[2];
                 try {
                     activeColorThemeKind = WEBVIEW_THEME_CONST[vscode.window.activeColorTheme.kind];
                 } catch (err) {
-                    Logger.log(`侧边：获取当前主题kind失败，默认给暗色系2${WEBVIEW_THEME_CONST[2]}`);
+                    Logger.log(`Side: Failed to get the current theme kind, default to dark color scheme 2 ${WEBVIEW_THEME_CONST[2]}`);
                     activeColorThemeKind = WEBVIEW_THEME_CONST[2];
                 }
                 this.invokeCallback(message, {
                     themeKind: activeColorThemeKind,
                 });
                 break;
-            // 监听回调事件
+            // Listen for callback events
             case 'ide.callBack':
                 Logger.log('ide.callBack__', message);
                 this.callBackDeal(message.params);
                 break;
-            // 打开一个代码对比页面
+            // Open a code comparison page
             case 'ide.ideDiffCode':
                 this.ideDiffCode(message.params);
                 break;
-            // 跳转到指定文件
+            // Jump to the specified file
             case 'ide.jumpByPath':
                 this.doJumpByPath(message.params);
                 break;
-            // 将传过来的markdown字符串中的文件路径做特殊处理
+            // Special processing of file paths in the passed markdown string
             case 'ide.dealJumpFilePath':
                 this.doDealJumpPath(message);
                 break;
-            // 打开帮助文档
+            // Open the help document
             case 'ide.openHelperDoc':
                 this.userHelperDocPanel();
                 break;
-            // 登录功能
+            // Login function
             case 'ide.login':
                 this.doLogin(message);
                 break;
-            //检查当前access_token在服务端是否已经失效
+            // Check if the current access_token has expired on the server
             case 'ide.checkToken':
                 this.doCheckToken(message);
                 break;
@@ -143,21 +143,21 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
         });
 
         if (this.leftOverMessage != null) {
-            // If there were any messages that wasn't delivered, render after resolveWebView is called.
+            // If there were any messages that weren't delivered, render after resolveWebView is called.
             this.sendMessage(this.leftOverMessage);
             this.leftOverMessage = null;
         }
     }
 
     /**
-     * 执行回调函数,回调给webview
+     * Execute the callback function and callback to the webview
      */
     private invokeCallback(message: any, data: any) {
         this.webView?.webview.postMessage({ action: 'ideCallback', cbid: message.cbid, data: data });
     }
 
     /**
-     * 处理webview回调回ide的事件
+     * Handle the event that the webview callbacks to the IDE
      */
     private callBackDeal(data: any) {
         const cbid = data.cbid;
@@ -168,7 +168,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
     }
 
     /**
-     * 发送消息给webview
+     * Send a message to the webview
      */
     public sendMessage(message: any, callBackFunc?: Function) {
         if (this.webView) {
@@ -187,7 +187,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
     }
 
     /**
-     * 通知视图，配置有更新
+     * Notify the view that the configuration has been updated
      */
     public updateConfig() {
         this.sendMessage({
@@ -199,12 +199,12 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
     }
 
     /**
-     * 登录，获取服务的access_token和refresh_token
+     * Login to obtain the access_token and refresh_token of the service
      */
     private async doLogin(message: any) {
         const accessToken = await Auth0AuthenticationProvider.getInstance().login();
         if (!accessToken) {
-            vscode.window.showInformationMessage('登录失败，请重新登录');
+            vscode.window.showInformationMessage('Login failed, please log in again');
             return;
         }
         const username = Auth0AuthenticationProvider.getUsername(accessToken);
@@ -215,12 +215,12 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
     }
 
     /**
-     * 检查当前的access_token，必要的时候通过refresh_token进行更新
+     * Check the current access_token and update it with the refresh_token if necessary
      */
     private async doCheckToken(message: any) {
         const accessToken = await Auth0AuthenticationProvider.getInstance().checkToken();
         if (!accessToken) {
-            vscode.window.showInformationMessage('登录已失效，请重新登录');
+            vscode.window.showInformationMessage('Login has expired, please log in again');
             return;
         }
         const username = Auth0AuthenticationProvider.getUsername(accessToken);
@@ -231,17 +231,17 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
     }
 
     /**
-     * 处理webview需要显示的状态通知
+     * Handle the status notification that the webview needs to display
      */
     private doNotification(message: any) {
         if (message.params.isError) {
             vscode.window.showErrorMessage(message.params.content);
         } else if (message.params.isReviewSuccess) {
             vscode.window.showInformationMessage(message.params.content,
-                { title: '查看详情', isCloseAffordance: false },
-                { title: '知道了', isCloseAffordance: true }
+                { title: 'View details', isCloseAffordance: false },
+                { title: 'Got it', isCloseAffordance: true }
             ).then(async selection => {
-                if (selection && selection.title === '查看详情') {
+                if (selection && selection.title === 'View details') {
                     await vscode.commands.executeCommand('vscode-zgsm.view.focus');
                     setTimeout(() => {
                         this.invokeCallback(message, message.params.data);
@@ -250,9 +250,9 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
             });
         } else if (message.params.isOpenView) {
             vscode.window.showInformationMessage(message.params.content,
-                { title: "打开会话窗口", isCloseAffordance: false }
+                { title: "Open the chat window", isCloseAffordance: false }
             ).then(selection => {
-                if (selection && selection.title === '打开会话窗口') {
+                if (selection && selection.title === 'Open the chat window') {
                     vscode.commands.executeCommand('vscode-zgsm.view.focus');
                     setTimeout(() => {
                         this.invokeCallback(message, message.params.data);
@@ -265,7 +265,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
     }
 
     /**
-     * 把选中代码返回给webview
+     * Return the selected code to the webview
      */
     private doGetSelectCode(message: any) {
         let data = {
@@ -285,13 +285,13 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
         const endLine = editor.selection.end.line;
 
         if (startLine == endLine) {
-            // 获取选中的文本并去除前后的空格
+            // Get the selected text and remove leading and trailing spaces
             const selectedText = editor.document.getText(editor.selection).trim();
-            // 获取完整的起始和结束行的文本并去除前后的空格
+            // Get the full text of the start and end lines and remove leading and trailing spaces
             const startLineText = editor.document.lineAt(startLine).text.trim();
-            // 检查选中的文本是否是完整的一行
+            // Check if the selected text is a full line
             if (selectedText != startLineText) {
-                Logger.log("ide.getSelectCode获取的代码不是完整的一行，直接返回");
+                Logger.log("The code obtained by ide.getSelectCode is not a full line, returning directly");
                 this.invokeCallback(message, data);
                 return;
             }
@@ -310,19 +310,20 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
 
         this.invokeCallback(message, data);
     }
+
     /**
-     * 创建一个新文件，新文件的内容为字符串text
+     * Create a new file with the content of the string text
      */
     public createNewFile(text: string, language: string) {
-        // 获取当前的工作区
+        // Get the current workspace
         const workspace = vscode.workspace;
-        // 如果当前没有打开的工作区，则返回
+        // If there is no open workspace, return
         if (!workspace) {
             return;
         }
-        // 创建一个新的未保存的文件
+        // Create a new unsaved file
         const newFile = workspace.createFileSystemWatcher('untitled:*');
-        // 打开新创建的文件
+        // Open the newly created file
         workspace.openTextDocument({ content: text }).then((document) => {
             if (language) {
                 Logger.log("info language:", language);
@@ -333,30 +334,30 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
     }
 
     /**
-     * 主题更改事件webView
+     * Theme change event for the webView
      */
     private seedChangeActiveColorTheme(postData: any) {
         this.sendMessage({ action: 'editor.changeTheme', data: postData });
     }
 
     /**
-     * 注册 主题更改事件监听器
+     * Register the theme change event listener
      */
     private changeActiveColorTheme() {
         vscode.window.onDidChangeActiveColorTheme((theme) => {
             let themeColor = WEBVIEW_THEME_CONST[2];
             try {
                 themeColor = WEBVIEW_THEME_CONST[theme.kind];
-                Logger.log(`侧边：当前主题kind变为：${theme.kind}，${themeColor}`);
+                Logger.log(`Side: The current theme kind has changed to: ${theme.kind}, ${themeColor}`);
             } catch (err) {
-                Logger.log(`侧边：获取当前主题kind失败，默认给暗色系2${WEBVIEW_THEME_CONST[2]}`);
+                Logger.log(`Side: Failed to get the current theme kind, default to dark color scheme 2 ${WEBVIEW_THEME_CONST[2]}`);
             }
             this.seedChangeActiveColorTheme({ "themeKind": themeColor });
         });
     }
 
     /**
-     * codelens 按钮事件触发后，给webview发送请求，和LLM对话
+     * After the codelens button event is triggered, send a request to the webview to have a conversation with the LLM
      */
     public codeLensButtonSend(codelensParams: any) {
         vscode.commands.executeCommand('vscode-zgsm.view.focus');
@@ -367,7 +368,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
                     data: codelensParams
                 });
             } catch (error) {
-                Logger.log("启动webview失败,等待2秒重试", error);
+                Logger.log("Failed to start the webview, retrying in 2 seconds", error);
                 setTimeout(() => {
                     this.sendMessage({
                         action: 'editor.codeLensButtonSend',
@@ -379,21 +380,21 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
     }
 
     /**
-     * 使用手册面板事件
+     * User manual panel event
      */
     public userHelperDocPanel() {
         vscode.env.openExternal(vscode.Uri.parse(`${envSetting.zgsmSite}`));
     }
 
     /**
-     * 打开用户问题反馈入口
+     * Open the user feedback entry
      */
     public userFeedbackIssue() {
         vscode.env.openExternal(vscode.Uri.parse(`${envSetting.baseUrl}/issue/`));
     }
 
     /**
-     * 登出，会导致无法使用补全
+     * Logout, which will result in the inability to use completion
      */
     public async logout() {
         await Auth0AuthenticationProvider.getInstance().logout();
@@ -403,7 +404,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
     }
 
     /**
-     * 打开一个代码对比diff页面
+     * Open a code comparison diff page
      */
     public async ideDiffCode(data: any) {
         Logger.log("ideDiffCode", data);
@@ -413,17 +414,17 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
             let newContent: string;
             const { code, range, key, filePath } = data;
 
-            // 如果没有传文件、起始行号，或者是单测类型，直接插入到光标处
+            // If no file, start line number is passed, or it is a unit test type, insert directly at the cursor
             if (!filePath || range?.startLine === undefined || range?.endLine === undefined || (key === CODELENS_FUNC.addTests.key)) {
                 editor = vscode.window.activeTextEditor;
                 if (!editor) {
-                    vscode.window.showErrorMessage("当前无打开的文件，无法对比或者采纳");
+                    vscode.window.showErrorMessage("There is no open file currently, unable to compare or adopt");
                     return;
                 }
                 fileUri = editor.document.uri;
                 const doc = await vscode.workspace.openTextDocument(fileUri);
                 const originalContent = doc.getText();
-                // 将代码插入到光标处（或替换选中块）
+                // Insert the code at the cursor (or replace the selected block)
                 const selection = editor.selection;
                 const start = doc.offsetAt(selection.start);
                 const end = doc.offsetAt(selection.end);
@@ -436,19 +437,19 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
                 if (data.range.startLine < 0 || data.range.endLine <= 0) {
                     data.range.startLine = data.range.endLine = 0;
                 } else if (data.key === CODELENS_FUNC.addComment.key && data.acceptAction !== "replace") {
-                    // 如果是添加注释，是将代码插入 而不是替换，所以特殊处理一下行号问题
-                    // 区分函数头和函数行注释，这里web传参accept_action区分是插入还是替换  insert / replace
+                    // If it is to add a comment, the code is inserted instead of replaced, so handle the line number problem specially
+                    // Distinguish between function header and function line comments. Here, the web parameter accept_action distinguishes between insertion and replacement insert / replace
                     data.range.startLine = data.range.endLine;
                 } else {
                     data.range.endLine = data.range.endLine + 1;
                 }
-                // 将代码片段覆盖到指定行号范围
+                // Overwrite the code snippet to the specified line number range
                 const lines = originalContent.split('\n');
                 const before = lines.slice(0, data.range.startLine).join('\n');
                 const after = lines.slice(data.range.endLine).join('\n');
                 newContent = `${before}\n${code}${after}`;
             }
-            // 写入临时文件
+            // Write to a temporary file
             const tempDir = getVscodeTempFileDir(codeLensDiffCodeTempFileDir);
             const tempFilePath = path.join(tempDir, "untitled");
             if (!fs.existsSync(tempDir)) {
@@ -458,19 +459,19 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
                 fs.unlinkSync(tempFilePath);
             }
 
-            Logger.log("写入临时文件", tempFilePath);
+            Logger.log("Write to temporary file", tempFilePath);
             fs.writeFileSync(tempFilePath, newContent);
 
-            // 显示 diff
-            await vscode.commands.executeCommand('vscode.diff', vscode.Uri.file(tempFilePath), fileUri, '神码 查看变更');
+            // Display the diff
+            await vscode.commands.executeCommand('vscode.diff', vscode.Uri.file(tempFilePath), fileUri, 'ZGSM View Changes');
         } catch (err) {
             Logger.error(`ideDiffCode. fail` + err);
-            vscode.window.showInformationMessage('展示diff失败，请检查源文件是否被删除，如仍存在错误请联系神码客服');
+            vscode.window.showInformationMessage('Failed to display the diff. Please check if the source file has been deleted. If the error persists, please contact the ZGSM customer service.');
         }
     }
 
     /**
-     * 在光标处或者指定的range范围处插入代码
+     * Insert code at the cursor or within the specified range.
      */
     public async insertCode(data: any) {
         Logger.log("insertCode", data);
@@ -478,14 +479,14 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
             let editor: vscode.TextEditor | undefined;
             const { code, range, key, filePath } = data;
 
-            // 如果没有传文件、起始行号，或者是单测类型，直接插入到光标处
+            // If no file or start line number is provided, or it's a unit test type, insert directly at the cursor.
             if (!filePath || range?.startLine === undefined || range?.endLine === undefined || (key === CODELENS_FUNC.addTests.key)) {
                 editor = vscode.window.activeTextEditor;
                 if (!editor) {
-                    vscode.window.showErrorMessage("当前无打开的文件，无法对比或者采纳");
+                    vscode.window.showErrorMessage("There is no open file currently, unable to compare or adopt.");
                     return;
                 }
-                // 将代码插入到光标处（或替换选中块）
+                // Insert the code at the cursor (or replace the selected block).
                 const snippet = new vscode.SnippetString();
                 snippet.appendText(code);
                 await editor?.insertSnippet(snippet);
@@ -494,7 +495,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
                 const doc = await vscode.workspace.openTextDocument(fileUri);
                 await vscode.window.showTextDocument(doc);
                 editor = vscode.window.activeTextEditor;
-                // 将代码片段覆盖到指定行号范围
+                // Overwrite the code snippet to the specified line number range.
                 if (range.startLine < 0 || range.endLine <= 0) {
                     const startPosition = new vscode.Position(0, 0);
                     await editor?.edit(editBuilder => {
@@ -521,12 +522,12 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
             }
         } catch (err) {
             Logger.error(`insertCode. file open fail` + err);
-            vscode.window.showInformationMessage('源文件打开失败，请检查源文件是否被删除');
+            vscode.window.showInformationMessage('Failed to open the source file. Please check if the source file has been deleted.');
         }
     }
 
     /**
-     * 跳转到指定文件
+     * Jump to the specified file.
      */
     public async doJumpByPath(data: any) {
         Logger.log("doJumpByPath", data);
@@ -536,11 +537,11 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
                 return;
             }
             if (!filePath) {
-                vscode.window.showInformationMessage('跳转失败，文件路径为空');
+                vscode.window.showInformationMessage('Jump failed. The file path is empty.');
                 return;
             }
 
-            // 中文会被转义，先解码文件路径
+            // Decode the file path first as Chinese characters may be escaped.
             filePath = decodeURIComponent(filePath);
 
             if (filePath.includes("http://") || filePath.includes("https://") || filePath.startsWith("ftp://") || filePath.includes("www.")) {
@@ -548,36 +549,36 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
                 return;
             }
             if (fs.existsSync(filePath)) {
-                // 判断是否是文件夹
+                // Check if it's a directory.
                 if (fs.statSync(filePath).isDirectory()) {
-                    // 如果是文件夹，则定位到目录位置
+                    // If it's a directory, locate it in the explorer.
                     const uri = vscode.Uri.file(filePath);
                     vscode.commands.executeCommand('revealInExplorer', uri);
                     return;
                 }
-                // 打开文件
+                // Open the file.
                 const document = await vscode.workspace.openTextDocument(filePath);
                 const editor = await vscode.window.showTextDocument(document);
 
                 if (lineNumber) {
-                    // 定位到指定行号
+                    // Locate to the specified line number.
                     const position = new vscode.Position(lineNumber, 0);
                     const range = new vscode.Range(position, position);
                     editor.selection = new vscode.Selection(position, position);
                     editor.revealRange(range, vscode.TextEditorRevealType.InCenter);
                 }
             } else {
-                Logger.info(`文件路径不存在：${filePath}`);
-                vscode.window.showInformationMessage(`跳转失败：文件路径${filePath}不存在`);
+                Logger.info(`The file path does not exist: ${filePath}`);
+                vscode.window.showInformationMessage(`Jump failed: The file path ${filePath} does not exist.`);
             }
         } catch (err) {
             Logger.error("doJumpByPath failed:" + err);
-            vscode.window.showInformationMessage('跳转失败');
+            vscode.window.showInformationMessage('Jump failed.');
         }
     }
-    
+
     /**
-     * 处理LLM返回内容中的本地路径
+     * Process local paths in the content returned by the LLM.
      */
     private doDealJumpPath(message: any) {
         const mdString: any = this.dealJumpFilePath(message.params);
@@ -585,7 +586,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
     }
 
     /**
-     * 传过来的markdown字符串中的文件路径做特殊处理
+     * Perform special processing on file paths in the passed markdown string.
      */
     private dealJumpFilePath(data: any) {
         Logger.log("dealJumpFilePath", data);
@@ -596,14 +597,14 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
                 return mdString;
             }
 
-            // 定义正则，匹配md中的超链接
+            // Define a regular expression to match hyperlinks in the markdown.
             const pattern = /\[(.*?)\]\((.*?)\)/g;
 
             let match: RegExpExecArray | null;
 
-            // 处理违规的字符串，替换成md支持的
+            // Process illegal strings and replace them with markdown-supported ones.
             function replaceSymbols(text: String) {
-                // 需要替换的字符串
+                // Strings to be replaced.
                 const replaceMap: { [key: string]: string; } = {
                     " ": "%20",
                     "_": "\\_"
@@ -620,17 +621,17 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
                 if (filePath.includes('sendQuestion')) {
                     continue;
                 }
-                // 剔除web超链接
+                // Exclude web hyperlinks.
                 if (filePath.startsWith("http://") || filePath.startsWith("https://") || filePath.startsWith("ftp://") || filePath.includes("www.")) {
                     continue;
                 }
 
-                // 判断文件是否存在
+                // Check if the file exists.
                 if (!fs.existsSync(filePath)) {
-                    // 如果文件不存在，取消掉超链接
+                    // If the file does not exist, remove the hyperlink.
                     cleanText = cleanText.replace(hyperlink, fileName);
                 } else {
-                    // 链接中的文件名
+                    // The file name in the link.
                     // const name = path.basename(filePath);
 
                     // const validName = replaceSymbols(name);

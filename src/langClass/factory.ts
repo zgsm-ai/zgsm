@@ -14,8 +14,8 @@ import { PythonLangClass } from "./python";
 import { LangClass } from "./LangClass";
 
 /**
- * 根据语言名称获取语言类
- * 非指定的语言则采用BaseLangClass进行通用处理
+ * Retrieve the language class based on the language name
+ * Languages not specified will be handled using the BaseLangClass for general processing
  */
 export function getLanguageClass(language: string): LangClass {
     switch (language) {

@@ -5,18 +5,18 @@
       <div class="stop-chat" v-if="isLoading" @click="stopChat">
         <img class="notHover" src="@/assets/stop-chat-icon.svg" />
         <img class="isHover" src="@/assets/stop-chat-hover-icon.svg" />
-        <span>停止生成</span>
+        <span>Stop generating</span>
       </div>
       <IxPopconfirm
         placement="topCenter"
-        title="确认清空内容吗？"
+        title="Are you sure you want to clear the content?"
         :onOk="confirmClear"
         v-if="!isLoading"
       >
         <div class="clear-chat" :class="{ disabled: isLoading }" v-if="chatList.length">
           <img class="notHover" src="@/assets/clear-icon.svg" />
           <img class="isHover" src="@/assets/clear-hover-icon.svg" />
-          <span>清空对话</span>
+          <span>Clear conversation</span>
         </div>
       </IxPopconfirm>
       <div class="input-content">
@@ -28,7 +28,7 @@
               v-model:value="inputValue"
               :key="times"
               :auto-size="{ minRows: 3, maxRows: 8 }"
-              placeholder="输入信息发起对话"
+              placeholder="Enter information to start a conversation"
             >
             </Textarea>
           </div>
@@ -55,23 +55,23 @@ import { Textarea } from 'ant-design-vue'
 import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue'
 import ChatList from './chatList.vue'
 
-const chatStore = useChatStore() // 使用 chatStore 状态管理
-const { setLoading, setInputInfo, chatList, addChat, clearChat, runChat, stopChat } = chatStore // 从 chatStore 中解构所需的方法和变量
-const isLoading = computed(() => chatStore.isLoading) // 计算属性，表示是否正在加载
+const chatStore = useChatStore() // Use chatStore state management
+const { setLoading, setInputInfo, chatList, addChat, clearChat, runChat, stopChat } = chatStore // Destructure the required methods and variables from chatStore
+const isLoading = computed(() => chatStore.isLoading) // Computed property indicating whether it is currently loading
 
-const configStore = useConfigStore() // 使用 configStore 状态管理
+const configStore = useConfigStore() // Use configStore state management
 const displayName = configStore.userInfo?.display_name
 
-const inputValue = ref('') // 输入框的值
-const times = ref(1) // 记录输入次数
-const showInputBox = ref(true) // 是否显示输入框
+const inputValue = ref('') // The value of the input box
+const times = ref(1) // Record the number of inputs
+const showInputBox = ref(true) // Whether to show the input box
 
-// 确认清除聊天记录
+// Confirm to clear the chat history
 const confirmClear = () => {
   clearChat()
 }
 
-// 处理键盘按下事件
+// Handle the keydown event
 const handleKeydown = async (event: KeyboardEvent) => {
   if (event.key === 'Enter' && !event.shiftKey) {
     event.preventDefault()
@@ -79,12 +79,12 @@ const handleKeydown = async (event: KeyboardEvent) => {
   }
 }
 
-// 清空输入框
+// Clear the input box
 const setEmptyInput = async () => {
   inputValue.value = ''
 }
 
-// 获取选中的代码
+// Get the selected code
 const getSelectCode = async () => {
   return new Promise((resolve) => {
     callBackIde('ide.getSelectCode', {}, (data: any) => {
@@ -93,9 +93,9 @@ const getSelectCode = async () => {
   })
 }
 
-const debounceRunChat = debounce(runChat) // 防抖处理的 runChat 方法
+const debounceRunChat = debounce(runChat) // Debounced runChat method
 
-// 处理提交事件
+// Handle the submit event
 const handleSubmit = async () => {
   if (isLoading.value) return
   const message = String(inputValue.value)
@@ -141,13 +141,13 @@ const handleSubmit = async () => {
   })
 }
 
-// 组件挂载时添加键盘事件监听
+// Add keyboard event listener when the component is mounted
 onMounted(() => {
   const inputBox = document.getElementById('inputBox')!
   inputBox && inputBox.addEventListener('keydown', handleKeydown, true)
 })
 
-// 组件卸载时移除键盘事件监听
+// Remove keyboard event listener when the component is unmounted
 onUnmounted(() => {
   const inputBox = document.getElementById('inputBox')!
   inputBox && inputBox.removeEventListener('keydown', handleKeydown, true)

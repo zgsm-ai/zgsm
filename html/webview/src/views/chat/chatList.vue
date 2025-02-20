@@ -22,7 +22,7 @@
           <div class="question-name" v-if="item.isQuestion">{{ item.username }}</div>
           <div class="answer-name" v-else>
             <span class="name-text">{{ item.username?.split('|')[0] }}</span>
-            <template v-if="item.username?.split('|')[0] !== '诸葛神码'">
+            <template v-if="item.username?.split('|')[0] !== 'ZGSM'">
               <span class="name-hr" v-if="item.username?.split('|')[1]"></span>
               <span class="name-tips">{{ item.username?.split('|')[1] }}</span>
             </template>
@@ -30,7 +30,7 @@
           <div
             class="toggle-anwser"
             v-if="!item.isQuestion"
-            :title="item.hideAnswer ? '展开' : '收起'"
+            :title="item.hideAnswer ? 'Expand' : 'Collapse'"
           >
             <IxIcon
               class="toggle-icon"
@@ -39,7 +39,7 @@
           </div>
         </div>
         <div class="question-tips" v-if="item.isQuestion && item.inputInfo?.actionName">
-          <span class="question-tips-text">{{ item.inputInfo?.actionName }}：</span>
+          <span class="question-tips-text">{{ item.inputInfo?.actionName }}:</span>
           <span class="question-tips-text">{{ item.inputInfo?.tooltip }}</span>
         </div>
         <div
@@ -50,12 +50,12 @@
           }"
         >
           <div :class="{ 'form-ide': item.isFromIde }" v-html="handleQuestion(item)"></div>
-          <p v-if="item.selectCode">选中代码是：</p>
+          <p v-if="item.selectCode">Selected code is:</p>
           <div v-if="item.selectCode" class="form-ide" v-html="handleSelectCode(item)"></div>
         </div>
 
         <div class="toggle-question" v-if="item.showToggle" @click="item.showAll = !item.showAll">
-          <span>{{ item.showAll ? '收起' : '展开' }}</span>
+          <span>{{ item.showAll ? 'Collapse' : 'Expand' }}</span>
           <IxIcon
             class="toggle-icon"
             :name="item.showAll ? 'caret-up-filled' : 'caret-down-filled'"
@@ -98,17 +98,17 @@
     </div>
     <div class="chat-item answer loading-content" v-if="isLoading">
       <img class="loading-icon" src="@/assets/answer-loading-icon.png" />
-      <span class="loading-text">生成中...</span>
+      <span class="loading-text">Generating...</span>
     </div>
     <div class="chat-item answer quick-link" v-if="!isLoading && adviseList.length > 0">
-      <span class="loading-text">你可能还想:</span>
+      <span class="loading-text">You may also want to:</span>
       <div>
         <p>
           <a href="sendQuestion" v-for="(item, index) in adviseList" :key="index" :title="item.prompt">
             {{ item.title }}
             <span v-if="adviseList.length > 1 && index < adviseList.length - 1"> | </span>
           </a>
-        </p>    
+        </p>
       </div>
     </div>
   </div>
@@ -127,18 +127,18 @@ const adviseList = computed(() => chatStore.advises)
 
 const configStore = useConfigStore()
 
-// 处理问题的函数
+// Function to handle questions
 const handleQuestion = (item: Chat) => {
   let allText = item.text
-  // 如果有选中的代码，则将其附加到文本后面
+  // If there is selected code, append it to the text
   if (item.selectCode) {
     allText = allText + '\n' + item.selectCode
   }
-  // 如果文本行数超过4行，则显示切换按钮
+  // If the number of text lines exceeds 4, show the toggle button
   if (allText.split('\n').length > 4) {
     item.showToggle = true
   }
-  // 根据是否来自IDE，调用不同的渲染函数
+  // Call different rendering functions depending on whether it is from the IDE
   if (item.isFromIde) {
     return makeMarkedResponse(item.text, true, item.language)
   } else {
@@ -146,26 +146,26 @@ const handleQuestion = (item: Chat) => {
   }
 }
 
-// 处理选中代码的函数
+// Function to handle selected code
 const handleSelectCode = (item: Chat) => {
   return makeMarkedResponse(item.selectCode || '', true, item.language)
 }
 
-// 聊天评价
+// Chat evaluation
 const evaluateChat = (item: Chat, type: 'like' | 'dislike') => {
   if (type === 'like') {
-    // 如果已经点赞，则返回
+    // If already liked, return
     if (item.isLike) return
     item.isDislike = false
     item.isLike = true
   } else {
-    // 如果已经点踩，则返回
+    // If already disliked, return
     if (item.isDislike) return
     item.isDislike = true
     item.isLike = false
   }
   try {
-    // 反馈聊天评价
+    // Feedback on chat evaluation
     feedbackChatEvaluate(configStore, {
       agent_name: item.username || '',
       conversation_id: item.inputInfo?.conversation_id || '',
@@ -177,7 +177,7 @@ const evaluateChat = (item: Chat, type: 'like' | 'dislike') => {
   }
 }
 
-// 展开或收起回答
+// Expand or collapse the answer
 const toggleAnswer = (item: Chat) => {
   if (item.isQuestion) return
   item.hideAnswer = !item.hideAnswer
