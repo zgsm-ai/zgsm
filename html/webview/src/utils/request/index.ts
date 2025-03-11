@@ -40,10 +40,9 @@ function http<T = any>(
   { url, data, method, headers, onDownloadProgress, signal, beforeRequest, afterRequest, ...otherAxiosRequestConfig }: HttpOption,
 ) {
   const successHandler = (res: AxiosResponse<Response<T>>) => {
-    // todo czh: 这里要重点测下异常场景，后台接口返回数据格式封装不好
+    // todo czh: Here, we need to focus on testing abnormal scenarios. The data format returned by the backend interface is not well encapsulated.
     if (res.data.success === true || typeof res.data === 'string' || res.data)
       return res.data;
-
 
     return Promise.reject(res.data);
   };
@@ -52,7 +51,7 @@ function http<T = any>(
     afterRequest?.();
 
     if (String(error).includes('timeout'))
-      throw new Error('请求超时，请重试');
+      throw new Error('Request timed out. Please try again.');
 
     if (error?.response?.status === 500)
       throw new Error('500');

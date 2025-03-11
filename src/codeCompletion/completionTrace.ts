@@ -16,35 +16,35 @@ import { writeLogsSync } from "../common/vscode-util";
 import * as vscode from "vscode";
 
 /**
- * 统计指标备忘本
+ * Completion metrics memo
  */
 interface CompletionMemo {
-    openapi_total: number;  //openapi调用总数
-    openapi_error: number;  //openapi出错次数
-    openapi_cancel: number; //openapi调用取消的次数
-    memo_ok: number;        //远程备忘成功的记录数目
-    memo_failed: number;    //远程备忘失败的记录数目
-    upload_ok: number;      //调用upload的成功计数
-    upload_failed: number;  //调用upload的失败计数
+    openapi_total: number;  // Total number of openapi calls
+    openapi_error: number;  // Number of openapi errors
+    openapi_cancel: number; // Number of openapi calls canceled
+    memo_ok: number;        // Number of successful remote memos
+    memo_failed: number;    // Number of failed remote memos
+    upload_ok: number;      // Number of successful upload calls
+    upload_failed: number;  // Number of failed upload calls
 
     status: Map<string, number>;
 }
 /**
- * 补全行为的运行痕迹记录上报
+ * Tracks and reports the execution traces of completion behavior
  */
 export class CompletionTrace {
-    private axios = require('axios');   //ajax通讯
-    private static client: CompletionTrace | undefined = undefined; //痕迹数据上报客户端（单例）
+    private axios = require('axios');   // AJAX communication
+    private static client: CompletionTrace | undefined = undefined; // Trace data reporting client (singleton)
     private context: vscode.ExtensionContext;
-    private errors = new Map<string, number>(); //各个状态对应错误发生次数
-    private openApiTotal: number = 0;   //调用openapi总请求数
-    private openApiCancel: number = 0;  //调用openapi被取消次数
-    private openApiError: number = 0;   //调用openapi出错的请求数
-    private memoOk: number = 0;         //上报成功的补全点信息条数
-    private memoFailed: number = 0;     //没上报成功的补全点信息条数
-    private uploadOk: number = 0;       //upload API调用成功计数
-    private uploadFailed: number = 0;   //upload API调用失败计数
-    private lastUploadError: number = 0;    //上一次上传成功时的错误总计数(openApiError)
+    private errors = new Map<string, number>(); // Error counts for each status
+    private openApiTotal: number = 0;   // Total number of openapi calls
+    private openApiCancel: number = 0;  // Number of openapi calls canceled
+    private openApiError: number = 0;   // Number of openapi errors
+    private memoOk: number = 0;         // Number of successful completion point information uploads
+    private memoFailed: number = 0;     // Number of failed completion point information uploads
+    private uploadOk: number = 0;       // Number of successful upload API calls
+    private uploadFailed: number = 0;   // Number of failed upload API calls
+    private lastUploadError: number = 0;    // Total error count (openApiError) at the last successful upload
 
     constructor(context: vscode.ExtensionContext) {
         this.context = context;
@@ -53,7 +53,7 @@ export class CompletionTrace {
     public static init(context: vscode.ExtensionContext) {
         let client = this.getInstance(context);
         const memo: CompletionMemo | undefined = client.context.globalState.get("trace");
-        if (!memo) 
+        if (!memo)
             return;
         client.openApiTotal = memo.openapi_total;
         client.openApiError = memo.openapi_error;
@@ -64,14 +64,14 @@ export class CompletionTrace {
         client.memoFailed = memo.memo_failed;
     }
     /**
-     * 报告补全API执行OK
+     * Report that the completion API executed successfully
      */
     public static reportApiOk() {
         const client = this.getInstance();
         client.openApiTotal++;
     }
     /**
-     * 报告补全API被取消
+     * Report that the completion API was canceled
      */
     public static reportApiCancel() {
         const client = this.getInstance();
@@ -79,7 +79,7 @@ export class CompletionTrace {
         client.openApiTotal++;
     }
     /**
-     * 报告补全API发生错误
+     * Report an error in the completion API
      */
     public static reportApiError(status: string): number {
         let client = this.getInstance();
@@ -95,7 +95,7 @@ export class CompletionTrace {
         return cnt;
     }
     /**
-     * 上报并清除一批补全点数据
+     * Upload and clear a batch of completion point data
      */
     public static async uploadPoints(): Promise<number> {
         const url = `${envSetting.baseUrl}/api/feedbacks/completions`;
@@ -119,7 +119,7 @@ export class CompletionTrace {
     }
 
     /**
-     * 上报累积的错误
+     * Upload accumulated errors
      */
     public static async uploadMemo() {
         let client = this.getInstance();
@@ -146,19 +146,19 @@ export class CompletionTrace {
         });
     }
     /**
-     * 设置CompletionTrace日志定时上传的定时器
+     * Set the timer for periodic upload of CompletionTrace logs
      */
     private static getInstance(context: vscode.ExtensionContext | undefined = undefined): CompletionTrace {
         if (!this.client) {
             if (!context) {
-                throw Error("必须先调用CompletionTrace.init初始化");
+                throw Error("CompletionTrace.init must be called first");
             }
             this.client = new CompletionTrace(context);
         }
         return this.client;
     }
     /**
-     * 根据补全点信息，构建上报的数据
+     * Construct data for reporting based on completion point information
      */
     private static constructData(cp: CompletionPoint): any {
         return {
@@ -175,7 +175,7 @@ export class CompletionTrace {
         };
     }
     /**
-     * 把进入终态的补全点构建到上报数据中
+     * Build data for reporting completed completion points
      */
     private static constructDatas() {
         let datas = [];
@@ -193,19 +193,18 @@ export class CompletionTrace {
         }
     }
     /**
-     * 代码补全日志上报
+     * Upload completion logs
      */
     private async postDatas(url: string, data: any): Promise<string> {
         return this.axios.post(url, data, {
             headers: createAuthenticatedHeaders()
         }).then(function (response: { data: any; }) {
             response = response.data;
-            Logger.debug(`补全：post(${url}) succeeded`, data);
+            Logger.debug(`Completion: post(${url}) succeeded`, data);
             return Promise.resolve(response.data)
         }).catch(function (error: any) {
-            Logger.debug(`补全：post(${url}) failed`, data);
+            Logger.debug(`Completion: post(${url}) failed`, data);
             return Promise.reject(error);
         });
     }
 }
-

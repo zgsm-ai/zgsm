@@ -1,6 +1,6 @@
 /**
- * 复制文本
- * @param options
+ * Copy text
+ * @param text
  */
 export function copyText(text: string) {
   const target = document.body;

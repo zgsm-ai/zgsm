@@ -12,8 +12,8 @@ import { getLanguageExtensions } from "./api";
 import { CODELENS_CONST, COMPLETION_CONST } from './constant';
 
 /**
- * 编程语言的扩展定义，
- * 通过重定义该数据结构，可以低成本支持自定义的编程后缀名
+ * Definition of programming language extensions,
+ * By redefining this data structure, you can support custom programming file extensions at a low cost
  */
 export interface LanguageExtension {
     language: string;
@@ -23,7 +23,7 @@ export interface LanguageExtension {
 export var languageExtensions: LanguageExtension[];
 
 /**
- * 加载服务端的语言扩展数据
+ * Load language extension data from the server
  */
 export async function loadRemoteLanguageExtensions() {
     const response = await getLanguageExtensions();
@@ -33,15 +33,16 @@ export async function loadRemoteLanguageExtensions() {
 }
 
 /**
- * 加载本地的语言扩展，以JSON文件的方式定义的数据结构
+ * Load local language extensions, defined in a JSON file
  */
 export function loadLocalLanguageExtensions() {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const languageExtensionData = require('../data/language-extension-data.json');
     languageExtensions = languageExtensionData;
 }
-/** 
- * 根据文件名获取文件后缀
+
+/**
+ * Get the file extension from the filename
  */
 function getExtensionByFilename(filename: string): string {
     if (!filename.includes('.')) {
@@ -53,7 +54,7 @@ function getExtensionByFilename(filename: string): string {
 }
 
 /**
- * 根据文件名获取语言，
+ * Get the language based on the filename
  */
 export function getLanguageByFilename(filename: string) {
     const fileExtension = getExtensionByFilename(filename).toLowerCase();
@@ -72,7 +73,7 @@ export function getLanguageByFilename(filename: string) {
 }
 
 /**
- * 根据文件路径获取语言
+ * Get the language based on the file path
  */
 export function getLanguageByFilePath(filePath: string) {
     const filename = path.basename(filePath);
@@ -80,21 +81,21 @@ export function getLanguageByFilePath(filePath: string) {
 }
 
 /**
- * 各语言对某项功能的禁用状态表
+ * Disable status table for each language's feature
  */
 export type LangDisables = {
     [key: string]: string;
 }
 /**
- * 语言功能开关
+ * Language feature switch
  */
 export enum LangSwitch {
-    Enabled = 0,            //开启
-    Disabled = 1,           //禁用
-    Unsupported = 2,        //该语言不支持此项能力
+    Enabled = 0,            // Enabled
+    Disabled = 1,           // Disabled
+    Unsupported = 2,        // The language does not support this feature
 }
 /**
- * 语言功能开启设置
+ * Language feature settings
  */
 export class LangSetting {
     public static completionEnabled = true;
@@ -107,44 +108,44 @@ export class LangSetting {
     private static instance: LangSetting | undefined = undefined;
 
     /**
-     * 获取补全禁用项
+     * Get completion disable items
      */
     public static getCompletionDisables(): LangDisables {
         return this.getDisables(this.getInstance().completionSwitchs);
     }
     /**
-     * 获取快捷菜单禁用项
+     * Get quick menu disable items
      */
     public static getCodelensDisables(): LangDisables {
         return this.getDisables(this.getInstance().codelensSwitchs);
     }
     /**
-     * 设置补全禁用项
+     * Set completion disable items
      */
     public static setCompletionDisables(disables: LangDisables) {
         this.setDisables(this.getInstance().completionSwitchs, disables, this.completionDefault);
     }
     /**
-     * 设置快捷菜单禁用项
+     * Set quick menu disable items
      */
     public static setCodelensDisables(disables: LangDisables) {
         this.setDisables(this.getInstance().codelensSwitchs, disables, this.codelensDefault);
     }
     /**
-     * 编程语言lang，有没有开启补全支持
+     * Check if completion is disabled for a language
      */
     public static getCompletionDisable(lang: string): LangSwitch {
         return this.getInstance().completionSwitchs.get(lang) ?? this.completionDefault;
     }
     /**
-     *  编程语言lang，有没有开启codelens支持
+     * Check if codelens is disabled for a language
      */
     public static getCodelensDisable(lang: string): LangSwitch {
         return this.getInstance().codelensSwitchs.get(lang) ?? this.codelensDefault;
     }
 
     /**
-     * 使用单例模式
+     * Singleton pattern
      */
     private static getInstance(): LangSetting {
         if (!this.instance) {
@@ -155,7 +156,7 @@ export class LangSetting {
         return this.instance;
     }
     /**
-     * 设置某项功能(代码补全/函数快捷菜单)所支持的语言列表
+     * Set the list of languages supported for a feature (code completion/quick menu)
      */
     private static setSupports(switchs: Map<string, LangSwitch>, langs: string[]) {
         for(let i = 0; i < langs.length; i++) {
@@ -164,7 +165,7 @@ export class LangSetting {
         }
     }
     /**
-     * 令语言禁用设置生效
+     * Apply language disable settings
      */
     private static setDisables(
         switchs: Map<string, LangSwitch>, disables: LangDisables, def: LangSwitch

@@ -24,7 +24,7 @@ import { getLanguageByFilePath, loadLocalLanguageExtensions } from "./common/lan
 import { getLanguageClass } from "./langClass/factory";
 
 /**
- * 初始化操作
+ * Initialization entry
  */
 async function initialize() {
     printLogo();
@@ -34,9 +34,8 @@ async function initialize() {
     loadLocalLanguageExtensions();
 }
 
-
 /**
- * 为各菜单项注册命令
+ * Register the command for each menu item
  */
 function registerMenuCommands(context: vscode.ExtensionContext, cvProvider: ChatViewProvider) {
     for (const rightMenu of rightMenus) {
@@ -49,7 +48,7 @@ function registerMenuCommands(context: vscode.ExtensionContext, cvProvider: Chat
             if (!selectedCode) {
                 return;
             }
-            Logger.log('右键点击了', rightMenu);
+            Logger.log('You clicked', rightMenu);
             vscode.commands.executeCommand('vscode-zgsm.view.focus');
 
             let params: any = CODELENS_FUNC[rightMenu.key];
@@ -75,21 +74,22 @@ function registerMenuCommands(context: vscode.ExtensionContext, cvProvider: Chat
         context.subscriptions.push(myCommand);
     }
 }
+
 /**
- * 插件激活时的入口函数
+ * Entry function when the extension is activated
  */
 export async function activate(context: vscode.ExtensionContext) {
     initialize();
 
     const authProvider = Auth0AuthenticationProvider.getInstance(context);
     authProvider.checkToken();
-    
+
     setupExtensionUpdater(context);
     doExtensionOnce(context);
     CompletionStatusBar.create(context);
     const cvProvider = ChatViewProvider.getInstance(context);
 
-    //  注册webview
+    // Register webview
     context.subscriptions.push(vscode.window.registerWebviewViewProvider(
         "vscode-zgsm.view",
         cvProvider,
@@ -101,30 +101,30 @@ export async function activate(context: vscode.ExtensionContext) {
     ));
 
     context.subscriptions.push(
-        // 注册codelens相关命令
+        // Register codelens related commands
         vscode.commands.registerTextEditorCommand(
             codeLensCallBackCommand.command,
             codeLensCallBackCommand.callback(context)
         ),
-        // 神码指令集
+        // Shenma instruction set
         vscode.commands.registerTextEditorCommand(
             codeLensCallBackMoreCommand.command,
             codeLensCallBackMoreCommand.callback(context)
         ),
-        //  注册函数头菜单
+        // Register function header menu
         vscode.languages.registerCodeLensProvider('*', new MyCodeLensProvider())
     );
 
-    // 监听配置变化
+    // Listen for configuration changes
     const configChanged = vscode.workspace.onDidChangeConfiguration(e => {
-        if (e.affectsConfiguration(configShenmaName)) { //【诸葛神码】设置变更，主要是各服务的URL设置
+        if (e.affectsConfiguration(configShenmaName)) { // Zhuge Shenma settings changed, mainly URL settings for various services
             updateEnv();
             cvProvider.updateConfig();
         }
-        if (e.affectsConfiguration(configCompletion)) { //代码补全设置变更
+        if (e.affectsConfiguration(configCompletion)) { // Code completion settings changed
             updateCompletionConfig();
         }
-        if (e.affectsConfiguration(configCodeLens)) {   //函数快捷指令配置变更
+        if (e.affectsConfiguration(configCodeLens)) {   // Function Quick Commands settings changed
             updateCodelensConfig();
         }
         CompletionStatusBar.initByConfig();
@@ -132,39 +132,37 @@ export async function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(configChanged);
 
     context.subscriptions.push(
-        //  代码补全服务
+        // Code completion service
         vscode.languages.registerInlineCompletionItemProvider(
             { pattern: "**" }, new AICompletionProvider(context)
         ),
-        // 快捷键命令 主动触发自动补全
+        // Shortcut command to trigger auto-completion manually
         vscode.commands.registerCommand(shortKeyCut.command, () => { shortKeyCut.callback(context); }),
     );
-    //  注册右键菜单对应的命令项
+    // Register the command for the right-click menu
     registerMenuCommands(context, cvProvider);
-    // 注册‘开始对话’命令
+    // Register the 'Start Chat' command
     context.subscriptions.push(vscode.commands.registerCommand('vscode-zgsm.chat', () => {
-        vscode.commands.executeCommand('vscode-zgsm.view.focus'); 
+        vscode.commands.executeCommand('vscode-zgsm.view.focus');
     }));
-    // 注册‘退出登录’命令
+    // Register the 'Logout' command
     context.subscriptions.push(vscode.commands.registerCommand('vscode-zgsm.view.logout', () => {
         cvProvider.logout();
     }));
-    //  注册用于清理session的命令
+    // Register the command for clearing sessions
     context.subscriptions.push(vscode.commands.registerCommand("vscode-zgsm.clearSession", () => {
         context.globalState.update("chatgpt-session-token", null);
     }));
-    // 注册‘使用手册’命令
+    // Register the 'User Manual' command
     context.subscriptions.push(vscode.commands.registerCommand('vscode-zgsm.view.userHelperDoc', () => {
         cvProvider.userHelperDocPanel();
     }));
-    //  注册‘问题反馈’命令
+    // Register the 'Report Issue' command
     context.subscriptions.push(vscode.commands.registerCommand('vscode-zgsm.view.issue', () => {
         cvProvider.userFeedbackIssue();
     }));
     CompletionStatusBar.initByConfig();
 }
 
-
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 export function deactivate() { }
-

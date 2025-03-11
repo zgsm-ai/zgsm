@@ -14,17 +14,17 @@ import { throttle } from "../common/util";
 import { getLanguageByFilePath } from '../common/lang-util';
 
 /**
- * commonCodeLensFunc的节流函数
+ * Throttled function for commonCodeLensFunc
  */
 const throttleCommonCodeLensFunc = throttle(commonCodeLensFunc, 2000);
 
 /**
- * 普通codelens指令的处理动作
- * @param editor codelens所在的文档编辑器
+ * Action for handling common codelens commands
+ * @param editor The document editor where the codelens is located
  * @param args: [documentSymbol, codelensItem]
  */
 async function commonCodeLensFunc(editor: any, ...args: any) {
-    // 先弹出webview页面，因为后面可能有耗时间的操作
+    // Show the webview page first, as there may be time-consuming operations later
     vscode.commands.executeCommand('vscode-zgsm.view.focus');
     const documentSymbol = args[1];
     const codelensItem = args[2];
@@ -39,12 +39,12 @@ async function commonCodeLensFunc(editor: any, ...args: any) {
     codelensItem.callType = CODELENS_CONST.funcHead;
     codelensItem.language = language;
     const params = langClass.codelensGetExtraArgs(editor.document, codelensItem.range, codelensItem);
-    // 发送消息令LLM完成响应动作
+    // Send a message to let LLM complete the response action
     ChatViewProvider.getInstance().codeLensButtonSend(params);
 }
 
 /**
- * codelens「更多」按钮的处理动作
+ * Action for handling the 'More' button in codelens
  */
 async function moreCodeLensFunc(editor: any, ...args: any) {
     const codeLens = args[2];
@@ -57,10 +57,10 @@ async function moreCodeLensFunc(editor: any, ...args: any) {
         options.push({ label: codelensItem.actionName, data: codelensItem });
     }
     const selection = await vscode.window.showQuickPick(options, {
-        placeHolder: '选择快捷指令'
+        placeHolder: 'Select a quick command'
     });
 
-    // 处理用户选择
+    // Handle user selection
     if (selection) {
         args[2] = selection.data;
         throttleCommonCodeLensFunc(editor, ...args);
@@ -68,7 +68,7 @@ async function moreCodeLensFunc(editor: any, ...args: any) {
 }
 
 /**
- * 普通codelens的回调函数
+ * Callback function for common codelens
  */
 export const codeLensCallBackCommand = {
     command: "vscode-zgsm.codelens_button",
@@ -76,7 +76,7 @@ export const codeLensCallBackCommand = {
 };
 
 /**
- * 「更多」按钮的codelens回调函数
+ * Callback function for the 'More' button in codelens
  */
 export const codeLensCallBackMoreCommand = {
     command: "vscode-zgsm.codelens_more_button",

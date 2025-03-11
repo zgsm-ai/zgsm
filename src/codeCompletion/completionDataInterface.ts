@@ -7,43 +7,43 @@
  * copies or substantial portions of the Software.
  */
 /**
- * 代码补全提示信息(简单的上下文)
+ * Code completion prompt information (simple context).
  */
 export interface CompletionPrompt {
-    prefix: string;             // 光标前所有代码
-    suffix: string;             // 光标后所有代码
-    cursor_line_prefix: string; // 光标所在行前缀代码
-    cursor_line_suffix: string; // 光标所在行后缀代码
+    prefix: string;             // All code before the cursor.
+    suffix: string;             // All code after the cursor.
+    cursor_line_prefix: string; // Prefix code of the line where the cursor is located.
+    cursor_line_suffix: string; // Suffix code of the line where the cursor is located.
 }
 /**
- * 文档信息
+ * Document information.
  */
 export interface CompletionDocumentInformation {
-    fpath: string;      // 文档路径
-    language: string;   // 语言
+    fpath: string;      // Document path.
+    language: string;   // Language.
 }
 /**
- * 补全反馈
+ * Completion feedback.
  */
 export interface CompletionFeedback {
-    acception: string;      //接受状态
-    correction: string;     //修正状态
-    actual_code: string;    //用户输入的实际代码
-    tab_enter: boolean;     //用户是否输入过TAB
-    expend_time: number;    //从系统开始获取补全内容到显示补全结果的整体耗时
+    acception: string;      // Acceptance status.
+    correction: string;     // Correction status.
+    actual_code: string;    // Actual code entered by the user.
+    tab_enter: boolean;     // Whether the user has entered TAB.
+    expend_time: number;    // Total time elapsed from when the system starts to obtain completion content to when the completion result is displayed.
 }
 
 /**
- * 补全是否接受的结果
+ * Results of whether the completion is accepted.
  */
 export enum CompletionAcception {
-    None = 0,       //还没有结果，用户还没有针对该补全内容进行操作
-    Canceled = 1,   //补全请求被取消了，包括：用户编辑前置内容，用户输入了新的内容，或者切换了编辑位置，导致该补全点失效
-    Accepted = 2,   //接受：用户按TAB键接受了补全内容
-    Rejected = 3,   //拒绝: 用户拒绝该补全，包括新输入内容与补全内容不相同
+    None = 0,       // No result yet, the user has not performed any operation on the completion content.
+    Canceled = 1,   // The completion request has been cancelled, including: the user edits the preceding content, the user enters new content, or switches the editing position, causing the completion point to become invalid.
+    Accepted = 2,   // Accepted: the user presses the TAB key to accept the completion content.
+    Rejected = 3,   // Rejected: the user rejects the completion, including when the newly entered content is different from the completion content.
 }
 /**
- * 用户接受状态
+ * User acceptance status.
  */
 export function getAcceptionString(acception: CompletionAcception): string {
     switch (acception) {
@@ -61,16 +61,16 @@ export function getAcceptionString(acception: CompletionAcception): string {
 }
 
 /**
- * 用户对补全结果的修正状态
+ * User correction status of the completion result.
  */
 export enum CompletionCorrection {
-    None = 0,               //未知
-    Unchanged = 1,          //没改变
-    Changed = 2,            //有改变
+    None = 0,               // Unknown.
+    Unchanged = 1,          // Unchanged.
+    Changed = 2,            // Changed.
 }
 
 /**
- * 用户修正状态
+ * User correction status.
  */
 export function getCorrectionString(state: CompletionCorrection): string {
     switch (state) {
@@ -85,17 +85,17 @@ export function getCorrectionString(state: CompletionCorrection): string {
     }
 }
 /**
- * 请求补全模式
+ * Request completion mode.
  */
 export enum CompletionMode {
-    DontNeed = 0,   //不需要补全
-    Cached = 1,     //已缓存：沿用上一个位置遗留的所有结果
-    Partial = 2,    //缓存后半部分(因为前半部分用户已经输入，只能沿用后半部内容)
-    Newest = 3,     //获取最新内容: 没有可以沿用的内容
+    DontNeed = 0,   // No completion needed.
+    Cached = 1,     // Cached: use all the results left over from the previous position.
+    Partial = 2,    // Cache the second half (since the user has entered the first half, only the second half can be used).
+    Newest = 3,     // Get the latest content: there is no content that can be used.
 }
 
 /**
- * 补全结果的匹配情况
+ * Matching situation of the completion result.
  */
 export interface CompletionRequirement {
     mode: CompletionMode;

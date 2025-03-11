@@ -9,9 +9,8 @@
 import { CompletionAcception, CompletionCorrection, CompletionDocumentInformation, CompletionPrompt } from "./completionDataInterface";
 import { Position, TextDocument } from 'vscode';
 
-
 /**
- * 根据编辑位置，计算主键(该主键作为补全点的唯一标识)
+ * Calculate the primary key based on the editing position (this primary key serves as the unique identifier for the completion point).
  */
 export function calcKey(fpath: string, line: number, column: number): string {
     //  test.py@12:1
@@ -19,50 +18,50 @@ export function calcKey(fpath: string, line: number, column: number): string {
 }
 
 //
-//代码补全生命周期主要时间点：
-//内容生成阶段：【代码补全点创建】--定时-->【代码补全RPC开始】-->请求-->获取结果-->【代码补全RPC结束】
-//处理结果阶段：【代码补全RPC结束】--用户处理结果-->【接受/拒绝】
-//修正内容阶段：【接受/拒绝】-->修正代码-->【获取用户修正内容】-->上报结果-->【代码补全点销毁】
+// The main time points in the code completion lifecycle:
+// Content generation phase: [Code completion point creation] --Timed--> [Code completion RPC starts] --> Request --> Obtain result --> [Code completion RPC ends]
+// Result processing phase: [Code completion RPC ends] --User processes the result--> [Accept/Reject]
+// Content correction phase: [Accept/Reject] --> Correct the code --> [Obtain the user's corrected content] --> Report the result --> [Code completion point destruction]
 //
 /**
- * 代码补全点
- * 记录一个代码位置发生的补全逻辑，及相关信息
+ * Code completion point.
+ * Records the completion logic and related information that occurs at a code position.
  */
 export class CompletionPoint {
-    // 补全点的唯一ID
+    // The unique ID of the completion point.
     public readonly id: string = "";
-    // 触发补全的方式：auto, manual
+    // The way to trigger completion: auto, manual.
     public readonly triggerMode: string = "";
-    // 补全点所在文档的信息
+    // Information about the document where the completion point is located.
     public readonly doc: CompletionDocumentInformation;
-    // 光标所在位置
+    // The position of the cursor.
     public readonly pos: Position;
-    // 光标所在行前代码
+    // The code before the cursor on the current line.
     public readonly linePrefix: string = "";
-    // 光标所在行后代码
+    // The code after the cursor on the current line.
     public readonly lineSuffix: string = "";
-    // 光标前所有代码
+    // All the code before the cursor.
     public readonly prefix: string = "";
-    // 光标后所有代码
+    // All the code after the cursor.
     public readonly suffix: string = "";
-    // 代码补全点创建时间
+    // The creation time of the code completion point.
     public readonly createTime: number = 0;
-    // 代码补全开始时间
+    // The start time of code completion.
     private startTime: number = 0;
-    // 代码补全结束时间
+    // The end time of code completion.
     private endTime: number = 0;
-    // 用户处理补全结果的时间
+    // The time when the user processes the completion result.
     private handleTime: number = 0;
-    // 补全结果接受状态
+    // The acceptance status of the completion result.
     private acception: CompletionAcception = CompletionAcception.None;
-    // 获取到的代码补全内容
+    // The obtained code completion content.
     private content: string = "";
-    // 用户修正后的实际代码
+    // The actual code corrected by the user.
     private actualCode: string = "";
-    // 用户修正代码的行为类型: none, changed, unchanged
+    // The type of the user's behavior in correcting the code: none, changed, unchanged.
     private correction: CompletionCorrection = CompletionCorrection.None;
 
-    constructor(id: string, docInfo: CompletionDocumentInformation, pos: Position, 
+    constructor(id: string, docInfo: CompletionDocumentInformation, pos: Position,
         prompt: CompletionPrompt, triggerMode: string, createTime: number) {
         this.id = id;
         this.doc = docInfo;
@@ -76,13 +75,13 @@ export class CompletionPoint {
     }
 
     /**
-     * 获取补全点的主键
+     * Get the primary key of the completion point.
      */
     public getKey(): string {
         return calcKey(this.doc.fpath, this.pos.line, this.pos.character);
     }
     /**
-     * 获取补全提示
+     * Get the completion prompt.
      */
     public getPrompt(): CompletionPrompt {
         return {
@@ -115,35 +114,35 @@ export class CompletionPoint {
         return this.correction;
     }
     /**
-     * 判断两个补全点是否严格一致，位置没变，前导代码也没有发生变化
+     * Determine whether two completion points are strictly the same, i.e., the position remains unchanged and the leading code has not changed.
      */
     public isStrictSamePosition(other: CompletionPoint): boolean {
-        return this.isSamePosition(other) && 
-            this.linePrefix === other.linePrefix && 
+        return this.isSamePosition(other) &&
+            this.linePrefix === other.linePrefix &&
             this.lineSuffix === other.lineSuffix;
     }
     /**
-     * 判断是否同一位置
+     * Determine whether they are at the same position.
      */
     public isSamePosition(other: CompletionPoint): boolean {
-        return this.doc.fpath === other.doc.fpath && 
-            this.pos.line === other.pos.line && 
+        return this.doc.fpath === other.doc.fpath &&
+            this.pos.line === other.pos.line &&
             this.pos.character === other.pos.character;
     }
     /**
-     * 判断是否同一行
+     * Determine whether they are on the same line.
      */
     public isSameLine(other: CompletionPoint): boolean {
         return this.doc.fpath === other.doc.fpath && this.pos.line === other.pos.line;
     }
     /**
-     * 判断是否同一文档,同一位置
+     * Determine whether they are in the same document and at the same position.
      */
     public isSameAsDoc(document: TextDocument, pos: Position): boolean {
         return this.doc.fpath === document.uri.fsPath && this.pos.isEqual(pos);
     }
     /**
-     * 该补全点已经进入终结态，可以做临终陈述了
+     * The completion point has entered the final state and can make a final statement.
      */
     public isFinished(): boolean {
         if (this.acception === CompletionAcception.None)
@@ -153,48 +152,48 @@ export class CompletionPoint {
         return this.correction !== CompletionCorrection.None;
     }
     /**
-     * 提交补全点
+     * Submit the completion point.
      */
     public submit() {
         this.startTime = Date.now();
     }
     /**
-     * 取消补全点
+     * Cancel the completion point.
      */
     public cancel() {
         this.acception = CompletionAcception.Canceled;
         this.endTime = Date.now();
     }
     /**
-     * 设置获取到的补全结果，该补全结果来自LLM生成或其它途径
+     * Set the obtained completion result, which comes from LLM generation or other sources.
      */
     public fetched(content: string) {
         this.content = content;
         this.endTime = Date.now();
     }
     /**
-     * 接受补全内容
+     * Accept the completion content.
      */
     public accept() {
         this.handleTime = Date.now();
         this.acception = CompletionAcception.Accepted;
     }
     /**
-     * 拒绝补全内容
+     * Reject the completion content.
      */
     public reject() {
         this.handleTime = Date.now();
         this.acception = CompletionAcception.Rejected;
     }
     /**
-     * 用户改变了补全内容
+     * The user has changed the completion content.
      */
     public changed(actualCode: string) {
         this.actualCode = actualCode;
         this.correction = CompletionCorrection.Changed;
     }
     /**
-     * 后期核对，用户完全接受补全内容
+     * Later verification shows that the user fully accepts the completion content.
      */
     public unchanged() {
         this.correction = CompletionCorrection.Unchanged;

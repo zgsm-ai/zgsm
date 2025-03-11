@@ -1,16 +1,16 @@
 // idux.ts
 import type { App } from 'vue';
 
-// 如果需要 css 按需加载，移除下面 2 行代码
+// If you need to load CSS on demand, remove the following 2 lines of code
 import '@idux/components/default.full.css';
 import '@idux/components/index.full.css';
 import '@idux/pro/index.css';
-// 如果需要 css 按需加载，则按需添加下面的代码
+// If you need to load CSS on demand, add the following code as needed
 // import "@idux/cdk/index.css";
 // import "@idux/components/style/core/reset.css";
 // import "@idux/components/style/core/reset-scroll.css";
 
-// 如果需要 js 按需加载，移除下面 3 行代码
+// If you need to load JS on demand, remove the following 3 lines of code
 import IduxCdk from '@idux/cdk';
 import IduxComponents from '@idux/components';
 import IduxPro from '@idux/pro';
@@ -31,11 +31,11 @@ import {
 } from '@idux/components/icon';
 // import { enUS } from "@idux/components/locales";
 
-// 静态加载: `IDUX_ICON_DEPENDENCIES` 是 `@idux` 的部分组件默认所使用到图标，建议在此时静态引入。
+// Static loading: `IDUX_ICON_DEPENDENCIES` are the icons used by some components of `@idux` by default. It is recommended to import them statically at this time.
 addIconDefinitions([...IDUX_ICON_DEPENDENCIES, Reload, More, Calendar, Up, Down, LikeFilled, DislikeFilled, Close, ArrowRight]);
 
-// 动态加载：不会被打包，可以减小包体积，需要加载的时候时候 http 请求加载
-// 注意：请确认图标的 svg 资源被正确放入到 `public/idux-icons` 目录中, 可以参考下面的 vite 配置
+// Dynamic loading: It will not be packaged, which can reduce the package size. It needs to be loaded via an HTTP request when needed.
+// Note: Please make sure that the SVG resources of the icons are correctly placed in the `public/idux-icons` directory. You can refer to the following Vite configuration.
 const loadIconDynamically = (iconName: string) => {
   return fetch(`/idux-icons/${iconName}.svg`).then((res) => res.text());
 };

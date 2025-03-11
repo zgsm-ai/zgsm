@@ -11,7 +11,7 @@ import { envSetting, envClient } from "./env";
 import { Logger } from "./log-util";
 
 /**
- * 构建RESTAPI请求头，带上客户端的标志信息以及认证API-KEY
+ * Build REST API request headers with client identification and authentication API-KEY
  */
 export function createAuthenticatedHeaders(dict: Record<string, any> = {}): Record<string, any> {
     const headers = {
@@ -26,11 +26,11 @@ export function createAuthenticatedHeaders(dict: Record<string, any> = {}): Reco
 }
 
 /**
- * 查询语言后缀列表
+ * Query the list of language suffixes
  */
 export async function getLanguageExtensions() {
     const url = `${envSetting.baseUrl}/api/configuration?belong_type=language&attribute_key=language_map`;
-    Logger.log('request start getLanguageExtensions()', url);
+    Logger.log('Request started: getLanguageExtensions()', url);
     return axios.get(url, {
         headers: createAuthenticatedHeaders({
             'Content-Type': 'application/json'
@@ -38,23 +38,23 @@ export async function getLanguageExtensions() {
     })
     .then((res) => {
         if (res.status === 200 && Array.isArray(res.data?.data)) {
-            Logger.log('request success getLanguageExtensions()', res.data);
+            Logger.log('Request succeeded: getLanguageExtensions()', res.data);
             return res.data;
         }
-        Logger.error(`request error: getLanguageExtensions() status code:${res.status} data.code:${res.data?.code}`);
+        Logger.error(`Request failed: getLanguageExtensions() status code:${res.status} data.code:${res.data?.code}`);
         return undefined;
     })
     .catch((err) => {
-        Logger.error('getLanguageExtensions request error:', err);
+        Logger.error('Request error: getLanguageExtensions', err);
         return undefined;
     });
 }
 
 /**
- * 查询扩展插件是否有新版本
+ * Check if the extension plugin has a new version
  */
 export async function getExtensionsLatestVersion() {
-    Logger.log('request start getExtensionsLatestVersion()');
+    Logger.log('Request started: getExtensionsLatestVersion()');
     const url = `${envSetting.baseUrl}/vscode/ex-server-api/zgsm-ai/zgsm/latest`;
 
     return axios.get(url, {
@@ -64,14 +64,14 @@ export async function getExtensionsLatestVersion() {
     })
     .then((res) => {
         if (res.status === 200 && res.data?.version) {
-            Logger.log('request success getExtensionsLatestVersion()', res.data.version);
+            Logger.log('Request succeeded: getExtensionsLatestVersion()', res.data.version);
             return res.data;
         }
-        Logger.error(`request error: getExtensionsLatestVersion() status code:${res.status} data.code:${res.data?.version}`);
+        Logger.error(`Request failed: getExtensionsLatestVersion() status code:${res.status} data.version:${res.data?.version}`);
         return undefined;
     })
     .catch((err) => {
-        Logger.error('getExtensionsLatestVersion request error:' + err);
+        Logger.error('Request error: getExtensionsLatestVersion' + err);
         return undefined;
     });
 }
