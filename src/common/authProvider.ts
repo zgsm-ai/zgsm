@@ -210,7 +210,7 @@ export default class Auth0AuthenticationProvider implements AuthenticationProvid
     public async login() {
         return await window.withProgress<string>({
             location: ProgressLocation.Notification,
-            title: "Please log in to use Zhuge Shenn码",
+            title: "Please login to use Zhuge Shenma",
             cancellable: true
         }, async (_, token) => {
             const stateId = getRandomId(12);

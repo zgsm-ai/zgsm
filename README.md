@@ -1,5 +1,8 @@
-# Project Name
-_A short and catchy description of your project_
+# Zhuge Shenma
+
+English | [简体中文](./README.zh-CN.md)
+
+Intelligent, Practical, and Open-Source Programming Assistant
 
 ## Features
 - Core feature 1: Brief functional description
@@ -9,7 +12,7 @@ _A short and catchy description of your project_
 ## Software Architecture
 ```[Architecture Diagram/System Design Description]```
 
-## Quick Start
+## Get Start
 ### Dependency Check
 - Runtime: `Python 3.8+`, `Node.js 16.x`
 - Libraries: `TensorFlow 2.12`, `PyTorch 1.9`
