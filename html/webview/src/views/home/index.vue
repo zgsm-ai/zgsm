@@ -9,7 +9,7 @@
   <div class="qianliu-ai">
     <div class="intro-container" v-if="!chatList.length">
       <img class="ai-icon" src="@/assets/logo.png" />
-      <p class="ai-title">ZGSM</p>
+      <p class="ai-title">ZHUGE</p>
       <p class="ai-desc">
         <span>Intelligent Programming Assistant</span>
       </p>
