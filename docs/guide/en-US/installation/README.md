@@ -74,12 +74,12 @@ bash deploy.sh
 ```
 
 ### Login Account
-1. Modify plugin configuration
+#### Modify plugin configuration
 Change the backend address of Zhuge Shenma to "server IP address:9080"
 
 ![alt text](/images/install/configure.png)
 
-Click the "Login" button
+#### Login
 
 ![alt text](/images/install/login.png)
 
