@@ -30,11 +30,11 @@
 - 隐私安全：全栈代码开源，支持服务本地化部署，杜绝敏感信息泄露
 
 ## 软件架构
-整体架构图
+### 整体架构图
 
 <img src="./images/readme/system.png">
 
-子模块关系图
+### 子模块关系图
 
 <img src="./images/readme/subsystem.png">
 

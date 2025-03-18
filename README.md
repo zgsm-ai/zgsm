@@ -1,74 +1,57 @@
-# Zhuge Shenma
+# Zhuge Shenma | AI Programming Assistant
 
-English | [简体中文](./README.zh-CN.md)
+English | [Simplified Chinese](./README.zh-CN.md)
 
-Intelligent, Practical, and Open-Source Programming Assistant
+<img src="./images/zhuge_shenma_rebot_logo_big.png" alt="zhuge logo" height="150px" align="right" />
+
+Zhuge Shenma is an exquisitely crafted AI programming tool that revolutionizes developers' coding paradigms through sharp code completion capabilities and the infinite possibilities of open-source ecosystems. Seamlessly integrating human-machine collaboration in mainstream development environments like VSCode and JetBrains, it offers precise contextual awareness and multi-language support, making code creation as natural and fluid as flowing water.
 
 ## Features
-- Core feature 1: Brief functional description
-- Core feature 2: Highlight technical innovation
-- Core feature 3: Emphasize performance advantages
+- **Code Completion**: Automatically generates subsequent code based on cursor context, delivering instant results within seconds.
+
+![GIF](https://zgsm.ai/assets/case_page_img1-458fb4ce.gif)
+
+- **Intelligent Q&A**: Generate code and technical solutions directly in your workspace through natural language descriptions.
+
+![GIF](https://zgsm.ai/assets/case_page_img2-8209c7a4.gif)
+
+- **Quick Menu**: Integrates most practical features for one-click usability (coming soon).
+
+![GIF](https://zgsm.ai/assets/case_page_img3-a9a313c3.gif)
+
+- **Smart Team**: Multi-agent system (Mutil Agent) for end-to-end repository code generation (coming soon).
+
+<img src="https://zgsm.ai/assets/case_page_img4-bd5834b0.png">
+
+![GIF](https://zgsm.ai/assets/case_page_img4-2d2e20ec.gif)
+
+- **Multi-language Support**: Python, Go, Java, Vue, TypeScript, JavaScript, C/C++, Shell, Lua, PHP, Ruby, SQL, and other mainstream languages.
+
+- **Privacy & Security**: Full-stack code open source with support for local deployment, ensuring no sensitive data leaks.
 
 ## Software Architecture
-```[Architecture Diagram/System Design Description]```
+### System Overview Diagram
 
-## Get Start
-### Installation
-Please refer to the [Installation Guide](/docs/guide/en-US/installation/README.md)
+<img src="./images/readme/system.png">
+
+### Submodule Relationship Diagram
+
+<img src="./images/readme/subsystem.png">
+
+## Quick Start
+### Deployment
+
+Refer to [Deployment Guide](/docs/guide/zh-CN/installation/README.md)
 
 ### Build
-```bash
-git clone https://github.com/your/project.git
-cd project && make build
-```
 
-### Run
-```bash
-./bin/start --config=config.yaml
-```
+Refer to Development Documentation
 
-## Usage Guide
-```bash
-# Basic operation
-$ your-tool process --input data.txt
-
-# Advanced configuration
-$ your-tool optimize --threads 4 --memory 8G
-
-# Configuration file example (config.yaml)
-logging:
-  level: info
-  path: /var/log/app.log
-```
-
-## How to Contribute
-1. Review our [Contribution Guidelines](CONTRIBUTING.md)
-2. Setup development environment:
-    ```bash
-    git clone https://github.com/your/project.git
-    cd project && make setup-env
-    ```
-3. Implement feature/fix:
-    ```bash
-    git flow feature start my-feature
-    ```
-4. Run verification:
-    ```bash
-    make test && make lint
-    ```
-5. Create pull request to `develop` branch
+## Contributing
+We welcome contributions! Please review [How To Contribute](docs/devel/zh-CN/how-to-contribute.md) for guidelines.
 
 ## Community
-[![Slack](https://img.shields.io/badge/Slack-join-blue)](https://slack.example.com)
-[![Forum](https://img.shields.io/badge/Forum-discuss-green)](https://forum.example.com)
-
-## Author
-[![GitHub](https://img.shields.io/badge/Follow-%40yourname-blue)](https://github.com/yourname)
-[![Twitter](https://img.shields.io/badge/Follow-%40yourhandle-1DA1F2)](https://twitter.com/yourhandle)
-
-## Who's Using
-[![CompanyA](https://img.shields.io/badge/CompanyA-Production-red)](https://companyA.com)
-[![ProjectB](https://img.shields.io/badge/ProjectB-Research-orange)](https://projectB.org)
+Communicate via [GitHub Issues](https://github.com/marmotedu/iam/issues/new/choose) or pull requests.
 
 ## License
-[![License](https://img.shields.io/github/license/your/project)](LICENSE)
+Licensed under MIT. See [LICENSE](LICENSE) for full text.
