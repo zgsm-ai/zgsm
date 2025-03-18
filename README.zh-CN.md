@@ -14,7 +14,7 @@
 
 ## 快速开始
 ### 安装
-请参考 [安装文档](./docs/guide/zh-CN/introduction/README.md)
+请参考 [安装文档](/docs/guide/zh-CN/installation/README.md)
 
 ### 编译构建
 ```bash
