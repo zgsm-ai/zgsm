@@ -79,13 +79,13 @@ bash deploy.sh
 
 ### 登录账户
 
-1. 修改插件配置
+#### 修改插件配置
 
 将诸葛神码的后端地址修改为“服务器IP地址:9080”
 
 ![alt text](/images/install/configure.png)
 
-点击“登录”按钮
+#### 登录
 
 ![alt text](/images/install/login.png)
 

@@ -52,7 +52,7 @@
 欢迎贡献代码，贡献流程可以参考 [How To Contribute](docs/devel/zh-CN/how-to-contribute.md)。
 
 ## 社区
-You are encouraged to communicate most things via [GitHub issues](https://github.com/marmotedu/iam/issues/new/choose) or pull requests.
+You are encouraged to communicate most things via [GitHub issues](https://github.com/zgsm-ai/zgsm/issues/new/choose) or pull requests.
 
 ## License
 IAM is licensed under the MIT. See [LICENSE](LICENSE) for the full license text.
