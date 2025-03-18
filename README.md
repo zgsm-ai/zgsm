@@ -13,10 +13,8 @@ Intelligent, Practical, and Open-Source Programming Assistant
 ```[Architecture Diagram/System Design Description]```
 
 ## Get Start
-### Dependency Check
-- Runtime: `Python 3.8+`, `Node.js 16.x`
-- Libraries: `TensorFlow 2.12`, `PyTorch 1.9`
-- Tools: `Docker 24.0+`, `Make 4.3`
+### Installation
+Please refer to the [Installation Guide](/docs/guide/en-US/installation/README.md)
 
 ### Build
 ```bash
