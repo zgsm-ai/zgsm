@@ -41,14 +41,14 @@ Zhuge Shenma is an exquisitely crafted AI programming tool that revolutionizes d
 ## Quick Start
 ### Deployment
 
-Refer to [Deployment Guide](/docs/guide/zh-CN/installation/README.md)
+Refer to [Deployment Guide](/docs/guide/en-US/installation/README.md)
 
 ### Build
 
 Refer to Development Documentation
 
 ## Contributing
-We welcome contributions! Please review [How To Contribute](docs/devel/zh-CN/how-to-contribute.md) for guidelines.
+We welcome contributions! Please review [How To Contribute](docs/devel/en-US/how-to-contribute.md) for guidelines.
 
 ## Community
 Communicate via [GitHub Issues](https://github.com/zgsm-ai/zgsm/issues/new/choose) or pull requests.
