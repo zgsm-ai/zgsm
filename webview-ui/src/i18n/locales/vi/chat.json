@@ -1,5 +1,5 @@
 {
-	"greeting": "Roo có thể giúp gì cho bạn?",
+	"greeting": "Chào mừng đến với Roo Code",
 	"task": {
 		"title": "Nhiệm vụ",
 		"seeMore": "Xem thêm",
@@ -7,7 +7,7 @@
 		"tokens": "Tokens:",
 		"cache": "Bộ nhớ đệm:",
 		"apiCost": "Chi phí API:",
-		"contextWindow": "Cửa sổ ngữ cảnh:",
+		"contextWindow": "Chiều dài bối cảnh:",
 		"closeAndStart": "Đóng nhiệm vụ và bắt đầu nhiệm vụ mới",
 		"export": "Xuất lịch sử nhiệm vụ",
 		"delete": "Xóa nhiệm vụ (Shift + Click để bỏ qua xác nhận)"
@@ -52,6 +52,10 @@
 		"title": "Tiếp tục trong khi chạy",
 		"tooltip": "Tiếp tục bất chấp cảnh báo"
 	},
+	"killCommand": {
+		"title": "Dừng lệnh",
+		"tooltip": "Dừng lệnh hiện tại"
+	},
 	"resumeTask": {
 		"title": "Tiếp tục nhiệm vụ",
 		"tooltip": "Tiếp tục nhiệm vụ hiện tại"
@@ -65,9 +69,27 @@
 		"tooltip": "Hủy thao tác hiện tại"
 	},
 	"scrollToBottom": "Cuộn xuống cuối cuộc trò chuyện",
-	"aboutMe": "Nhờ những đột phá mới nhất trong khả năng lập trình tác nhân, tôi có thể xử lý các nhiệm vụ phát triển phần mềm phức tạp từng bước một. Với các công cụ cho phép tôi tạo và chỉnh sửa tệp, khám phá các dự án phức tạp, sử dụng trình duyệt và thực thi lệnh terminal (sau khi bạn cấp quyền), tôi có thể hỗ trợ bạn theo cách vượt xa việc hoàn thành mã hoặc hỗ trợ kỹ thuật. Tôi thậm chí có thể sử dụng MCP để tạo các công cụ mới và mở rộng khả năng của mình.",
+	"about": "Tạo, tái cấu trúc và gỡ lỗi mã bằng sự hỗ trợ của AI.<br />Kiểm tra <DocsLink>tài liệu</DocsLink> của chúng tôi để tìm hiểu thêm.",
+	"onboarding": "<strong>Danh sách nhiệm vụ của bạn trong không gian làm việc này trống.</strong> Bắt đầu bằng cách nhập nhiệm vụ bên dưới. Bạn không chắc chắn nên bắt đầu như thế nào? Đọc thêm về những gì Roo có thể làm cho bạn trong <DocsLink>tài liệu</DocsLink>.",
+	"rooTips": {
+		"boomerangTasks": {
+			"title": "Nhiệm vụ Boomerang",
+			"description": "Chia nhỏ các nhiệm vụ thành các phần nhỏ hơn, dễ quản lý hơn."
+		},
+		"stickyModels": {
+			"title": "Chế độ dính",
+			"description": "Mỗi chế độ ghi nhớ mô hình đã sử dụng cuối cùng của bạn"
+		},
+		"tools": {
+			"title": "Công cụ",
+			"description": "Cho phép AI giải quyết vấn đề bằng cách duyệt web, chạy lệnh, v.v."
+		},
+		"customizableModes": {
+			"title": "Chế độ tùy chỉnh",
+			"description": "Các nhân vật chuyên biệt với hành vi riêng và mô hình được chỉ định"
+		}
+	},
 	"selectMode": "Chọn chế độ tương tác",
-	"selectApiConfig": "Chọn cấu hình API",
 	"enhancePrompt": "Nâng cao yêu cầu với ngữ cảnh bổ sung",
 	"addImages": "Thêm hình ảnh vào tin nhắn",
 	"sendMessage": "Gửi tin nhắn",
@@ -83,6 +105,9 @@
 	"edit": "Chỉnh sửa...",
 	"forNextMode": "cho chế độ tiếp theo",
 	"error": "Lỗi",
+	"diffError": {
+		"title": "Chỉnh sửa không thành công"
+	},
 	"troubleMessage": "Roo đang gặp sự cố...",
 	"apiRequest": {
 		"title": "Yêu cầu API",
@@ -117,7 +142,12 @@
 		"didRead": "Roo đã đọc tệp này:",
 		"wantsToEdit": "Roo muốn chỉnh sửa tệp này:",
 		"wantsToEditOutsideWorkspace": "Roo muốn chỉnh sửa tệp này bên ngoài không gian làm việc:",
-		"wantsToCreate": "Roo muốn tạo một tệp mới:"
+		"wantsToCreate": "Roo muốn tạo một tệp mới:",
+		"wantsToSearchReplace": "Roo muốn thực hiện tìm kiếm và thay thế trong tệp này:",
+		"didSearchReplace": "Roo đã thực hiện tìm kiếm và thay thế trong tệp này:",
+		"wantsToInsert": "Roo muốn chèn nội dung vào tệp này:",
+		"wantsToInsertWithLineNumber": "Roo muốn chèn nội dung vào dòng {{lineNumber}} của tệp này:",
+		"wantsToInsertAtEnd": "Roo muốn thêm nội dung vào cuối tệp này:"
 	},
 	"directoryOperations": {
 		"wantsToViewTopLevel": "Roo muốn xem các tệp cấp cao nhất trong thư mục này:",
@@ -155,10 +185,6 @@
 		"hasQuestion": "Roo có một câu hỏi:"
 	},
 	"taskCompleted": "Nhiệm vụ hoàn thành",
-	"shellIntegration": {
-		"unavailable": "Tích hợp shell không khả dụng",
-		"troubleshooting": "Vẫn gặp vấn đề?"
-	},
 	"powershell": {
 		"issues": "Có vẻ như bạn đang gặp vấn đề với Windows PowerShell, vui lòng xem"
 	},
@@ -220,7 +246,12 @@
 		"title": "Làm được nhiều hơn với Nhiệm vụ Boomerang 🪃",
 		"description": "Chia công việc thành các nhiệm vụ con, mỗi nhiệm vụ chạy trong một chế độ chuyên biệt như code, architect, debug, hoặc chế độ tùy chỉnh.",
 		"learnMore": "Tìm hiểu thêm →",
-		"hideButton": "Ẩn thông báo"
+		"whatsNew": "Có gì mới",
+		"feature1": "<bold>Công cụ chỉnh sửa được cải thiện</bold>: Các công cụ <code>search_and_replace</code> và <code>insert_content</code> đã được cải thiện và chuyển từ trạng thái thử nghiệm thành chính thức",
+		"feature2": "<bold>Sửa lỗi apply_diff</bold>: Chúng tôi tiếp tục cải thiện công cụ <code>apply_diff</code>",
+		"feature3": "<bold>Rất nhiều cải tiến khác</bold>: Vô số sửa lỗi và cải tiến trong toàn bộ tiện ích mở rộng",
+		"hideButton": "Ẩn thông báo",
+		"detailsDiscussLinks": "Nhận thêm chi tiết và thảo luận tại <discordLink>Discord</discordLink> và <redditLink>Reddit</redditLink> 🚀"
 	},
 	"browser": {
 		"rooWantsToUse": "Roo muốn sử dụng trình duyệt:",
@@ -243,5 +274,12 @@
 			"scrollUp": "Cuộn lên",
 			"close": "Đóng trình duyệt"
 		}
+	},
+	"systemPromptWarning": "CẢNH BÁO: Đã kích hoạt ghi đè lệnh nhắc hệ thống tùy chỉnh. Điều này có thể phá vỡ nghiêm trọng chức năng và gây ra hành vi không thể dự đoán.",
+	"selectApiConfig": "Chọn cấu hình API",
+	"shellIntegration": {
+		"title": "Tích hợp Shell không khả dụng",
+		"description": "Lệnh của bạn đang được thực thi mà không có tích hợp shell VSCode. Bạn có thể kích hoạt lại tích hợp shell trong phần <strong>Terminal</strong> của <settingsLink>cài đặt Roo Code</settingsLink>.",
+		"troubleshooting": "Nhấp vào đây để xem tài liệu về tích hợp shell."
 	}
 }

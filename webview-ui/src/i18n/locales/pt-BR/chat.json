@@ -1,5 +1,5 @@
 {
-	"greeting": "O que o Roo pode fazer por você?",
+	"greeting": "Bem-vindo ao Roo Code",
 	"task": {
 		"title": "Tarefa",
 		"seeMore": "Ver mais",
@@ -52,6 +52,10 @@
 		"title": "Prosseguir durante execução",
 		"tooltip": "Continuar apesar dos avisos"
 	},
+	"killCommand": {
+		"title": "Interromper Comando",
+		"tooltip": "Interromper o comando atual"
+	},
 	"resumeTask": {
 		"title": "Retomar tarefa",
 		"tooltip": "Continuar a tarefa atual"
@@ -65,9 +69,27 @@
 		"tooltip": "Cancelar a operação atual"
 	},
 	"scrollToBottom": "Rolar para o final do chat",
-	"aboutMe": "Graças aos mais recentes avanços em capacidades de codificação agentiva, posso lidar com tarefas complexas de desenvolvimento de software passo a passo. Com ferramentas que me permitem criar e editar arquivos, explorar projetos complexos, usar o navegador e executar comandos de terminal (após sua permissão), posso ajudar de maneiras que vão além da conclusão de código ou suporte técnico. Posso até usar o MCP para criar novas ferramentas e expandir minhas próprias capacidades.",
+	"about": "Gere, refatore e depure código com assistência de IA.<br />Confira nossa <DocsLink>documentação</DocsLink> para saber mais.",
+	"onboarding": "<strong>Sua lista de tarefas neste espaço de trabalho está vazia.</strong> Comece digitando uma tarefa abaixo. Não sabe como começar? Leia mais sobre o que o Roo pode fazer por você nos <DocsLink>documentos</DocsLink>.",
+	"rooTips": {
+		"boomerangTasks": {
+			"title": "Tarefas Bumerangue",
+			"description": "Divida as tarefas em partes menores e gerenciáveis."
+		},
+		"stickyModels": {
+			"title": "Modos Fixos",
+			"description": "Cada modo lembra o seu último modelo usado"
+		},
+		"tools": {
+			"title": "Ferramentas",
+			"description": "Permita que a IA resolva problemas navegando na web, executando comandos e muito mais."
+		},
+		"customizableModes": {
+			"title": "Modos personalizáveis",
+			"description": "Personas especializadas com comportamentos próprios e modelos atribuídos"
+		}
+	},
 	"selectMode": "Selecionar modo de interação",
-	"selectApiConfig": "Selecionar configuração de API",
 	"enhancePrompt": "Aprimorar prompt com contexto adicional",
 	"addImages": "Adicionar imagens à mensagem",
 	"sendMessage": "Enviar mensagem",
@@ -83,6 +105,9 @@
 	"edit": "Editar...",
 	"forNextMode": "para o próximo modo",
 	"error": "Erro",
+	"diffError": {
+		"title": "Edição mal-sucedida"
+	},
 	"troubleMessage": "Roo está tendo problemas...",
 	"apiRequest": {
 		"title": "Requisição API",
@@ -117,7 +142,12 @@
 		"didRead": "Roo leu este arquivo:",
 		"wantsToEdit": "Roo quer editar este arquivo:",
 		"wantsToEditOutsideWorkspace": "Roo quer editar este arquivo fora do espaço de trabalho:",
-		"wantsToCreate": "Roo quer criar um novo arquivo:"
+		"wantsToCreate": "Roo quer criar um novo arquivo:",
+		"wantsToSearchReplace": "Roo quer realizar busca e substituição neste arquivo:",
+		"didSearchReplace": "Roo realizou busca e substituição neste arquivo:",
+		"wantsToInsert": "Roo quer inserir conteúdo neste arquivo:",
+		"wantsToInsertWithLineNumber": "Roo quer inserir conteúdo neste arquivo na linha {{lineNumber}}:",
+		"wantsToInsertAtEnd": "Roo quer adicionar conteúdo ao final deste arquivo:"
 	},
 	"directoryOperations": {
 		"wantsToViewTopLevel": "Roo quer visualizar os arquivos de nível superior neste diretório:",
@@ -155,10 +185,6 @@
 		"hasQuestion": "Roo tem uma pergunta:"
 	},
 	"taskCompleted": "Tarefa concluída",
-	"shellIntegration": {
-		"unavailable": "Integração de shell indisponível",
-		"troubleshooting": "Ainda com problemas?"
-	},
 	"powershell": {
 		"issues": "Parece que você está tendo problemas com o Windows PowerShell, por favor veja este"
 	},
@@ -220,7 +246,12 @@
 		"title": "Faça mais com Tarefas Boomerang 🪃",
 		"description": "Divida o trabalho em subtarefas, cada uma executando em um modo especializado, como code, architect, debug ou um modo personalizado.",
 		"learnMore": "Saiba mais →",
-		"hideButton": "Ocultar anúncio"
+		"whatsNew": "O que há de novo",
+		"feature1": "<bold>Ferramentas de edição aprimoradas</bold>: As ferramentas <code>search_and_replace</code> e <code>insert_content</code> foram aprimoradas e não são mais experimentais",
+		"feature2": "<bold>Correções no apply_diff</bold>: Continuamos trabalhando para melhorar a ferramenta <code>apply_diff</code>",
+		"feature3": "<bold>Toneladas de outras melhorias</bold>: Inúmeras correções e aprimoramentos em toda a extensão",
+		"hideButton": "Ocultar anúncio",
+		"detailsDiscussLinks": "Obtenha mais detalhes e participe da discussão no <discordLink>Discord</discordLink> e <redditLink>Reddit</redditLink> 🚀"
 	},
 	"browser": {
 		"rooWantsToUse": "Roo quer usar o navegador:",
@@ -243,5 +274,12 @@
 			"scrollUp": "Rolar para cima",
 			"close": "Fechar navegador"
 		}
+	},
+	"systemPromptWarning": "AVISO: Substituição personalizada de instrução do sistema ativa. Isso pode comprometer gravemente a funcionalidade e causar comportamento imprevisível.",
+	"selectApiConfig": "Selecionar configuração da API",
+	"shellIntegration": {
+		"title": "Integração de Shell Indisponível",
+		"description": "Seu comando está sendo executado sem a integração de shell do VSCode. Você pode reativar a integração de shell na seção <strong>Terminal</strong> das <settingsLink>configurações do Roo Code</settingsLink>.",
+		"troubleshooting": "Clique aqui para a documentação de integração de shell."
 	}
 }

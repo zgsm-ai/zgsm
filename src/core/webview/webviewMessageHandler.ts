@@ -290,6 +290,11 @@ export const webviewMessageHandler = async (provider: ClineProvider, message: We
 		case "askResponse":
 			provider.getCurrentCline()?.handleWebviewAskResponse(message.askResponse!, message.text, message.images)
 			break
+		case "terminalOperation":
+			if (message.terminalOperation) {
+				provider.getCurrentCline()?.handleTerminalOperation(message.terminalOperation)
+			}
+			break
 		case "clearTask":
 			// clear task resets the current session and allows for a new task to be started, if this session is a subtask - it allows the parent task to be resumed
 			await provider.finishSubTask(t("common:tasks.canceled"))
@@ -747,6 +752,62 @@ export const webviewMessageHandler = async (provider: ClineProvider, message: We
 			await provider.postStateToWebview()
 			if (message.value !== undefined) {
 				Terminal.setShellIntegrationTimeout(message.value)
+			}
+			break
+		case "terminalShellIntegrationDisabled":
+			await updateGlobalState("terminalShellIntegrationDisabled", message.bool)
+			await provider.postStateToWebview()
+			if (message.bool !== undefined) {
+				Terminal.setShellIntegrationDisabled(message.bool)
+			}
+			break
+		case "terminalCommandDelay":
+			await updateGlobalState("terminalCommandDelay", message.value)
+			await provider.postStateToWebview()
+			if (message.value !== undefined) {
+				Terminal.setCommandDelay(message.value)
+			}
+			break
+		case "terminalPowershellCounter":
+			await updateGlobalState("terminalPowershellCounter", message.bool)
+			await provider.postStateToWebview()
+			if (message.bool !== undefined) {
+				Terminal.setPowershellCounter(message.bool)
+			}
+			break
+		case "terminalZshClearEolMark":
+			await updateGlobalState("terminalZshClearEolMark", message.bool)
+			await provider.postStateToWebview()
+			if (message.bool !== undefined) {
+				Terminal.setTerminalZshClearEolMark(message.bool)
+			}
+			break
+		case "terminalZshOhMy":
+			await updateGlobalState("terminalZshOhMy", message.bool)
+			await provider.postStateToWebview()
+			if (message.bool !== undefined) {
+				Terminal.setTerminalZshOhMy(message.bool)
+			}
+			break
+		case "terminalZshP10k":
+			await updateGlobalState("terminalZshP10k", message.bool)
+			await provider.postStateToWebview()
+			if (message.bool !== undefined) {
+				Terminal.setTerminalZshP10k(message.bool)
+			}
+			break
+		case "terminalZdotdir":
+			await updateGlobalState("terminalZdotdir", message.bool)
+			await provider.postStateToWebview()
+			if (message.bool !== undefined) {
+				Terminal.setTerminalZdotdir(message.bool)
+			}
+			break
+		case "terminalCompressProgressBar":
+			await updateGlobalState("terminalCompressProgressBar", message.bool)
+			await provider.postStateToWebview()
+			if (message.bool !== undefined) {
+				Terminal.setCompressProgressBar(message.bool)
 			}
 			break
 		case "mode":

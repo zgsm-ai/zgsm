@@ -1,5 +1,5 @@
 {
-	"greeting": "Was kann Roo für dich tun?",
+	"greeting": "Willkommen bei Roo Code",
 	"task": {
 		"title": "Aufgabe",
 		"seeMore": "Mehr anzeigen",
@@ -52,6 +52,10 @@
 		"title": "Während Ausführung fortfahren",
 		"tooltip": "Trotz Warnungen fortfahren"
 	},
+	"killCommand": {
+		"title": "Befehl abbrechen",
+		"tooltip": "Aktuellen Befehl abbrechen"
+	},
 	"resumeTask": {
 		"title": "Aufgabe fortsetzen",
 		"tooltip": "Aktuelle Aufgabe fortsetzen"
@@ -65,9 +69,27 @@
 		"tooltip": "Aktuelle Operation abbrechen"
 	},
 	"scrollToBottom": "Zum Chat-Ende scrollen",
-	"aboutMe": "Dank neuester Durchbrüche in agentischen Coding-Fähigkeiten kann ich komplexe Softwareentwicklungsaufgaben schrittweise bearbeiten. Mit Werkzeugen, die mir erlauben, Dateien zu erstellen und zu bearbeiten, komplexe Projekte zu erkunden, den Browser zu nutzen und Terminalbefehle auszuführen (nachdem du die Erlaubnis erteilt hast), kann ich dir auf Weisen helfen, die über Code-Vervollständigung oder technischen Support hinausgehen. Ich kann sogar MCP nutzen, um neue Werkzeuge zu erstellen und meine eigenen Fähigkeiten zu erweitern.",
+	"about": "Generiere, überarbeite und debugge Code mit KI-Unterstützung.<br />Weitere Informationen findest du in unserer <DocsLink>Dokumentation</DocsLink>.",
+	"onboarding": "<strong>Deine Aufgabenliste in diesem Arbeitsbereich ist leer.</strong> Beginne mit der Eingabe einer Aufgabe unten. Du bist dir nicht sicher, wie du anfangen sollst? Lies mehr darüber, was Roo für dich tun kann, in <DocsLink>den Dokumenten</DocsLink>.",
+	"rooTips": {
+		"boomerangTasks": {
+			"title": "Bumerang-Aufgaben",
+			"description": "Teile Aufgaben in kleinere, überschaubare Teile auf."
+		},
+		"stickyModels": {
+			"title": "Sticky Modi",
+			"description": "Jeder Modus merkt sich dein zuletzt verwendetes Modell"
+		},
+		"tools": {
+			"title": "Tools",
+			"description": "Erlaube der KI, Probleme durch Surfen im Web, Ausführen von Befehlen und mehr zu lösen."
+		},
+		"customizableModes": {
+			"title": "Anpassbare Modi",
+			"description": "Spezialisierte Personas mit eigenem Verhalten und zugewiesenen Modellen"
+		}
+	},
 	"selectMode": "Interaktionsmodus auswählen",
-	"selectApiConfig": "API-Konfiguration auswählen",
 	"enhancePrompt": "Prompt mit zusätzlichem Kontext verbessern",
 	"addImages": "Bilder zur Nachricht hinzufügen",
 	"sendMessage": "Nachricht senden",
@@ -83,6 +105,9 @@
 	"edit": "Bearbeiten...",
 	"forNextMode": "für nächsten Modus",
 	"error": "Fehler",
+	"diffError": {
+		"title": "Bearbeitung fehlgeschlagen"
+	},
 	"troubleMessage": "Roo hat Probleme...",
 	"apiRequest": {
 		"title": "API-Anfrage",
@@ -117,7 +142,12 @@
 		"didRead": "Roo hat diese Datei gelesen:",
 		"wantsToEdit": "Roo möchte diese Datei bearbeiten:",
 		"wantsToEditOutsideWorkspace": "Roo möchte diese Datei außerhalb des Arbeitsbereichs bearbeiten:",
-		"wantsToCreate": "Roo möchte eine neue Datei erstellen:"
+		"wantsToCreate": "Roo möchte eine neue Datei erstellen:",
+		"wantsToSearchReplace": "Roo möchte in dieser Datei suchen und ersetzen:",
+		"didSearchReplace": "Roo hat Suchen und Ersetzen in dieser Datei durchgeführt:",
+		"wantsToInsert": "Roo möchte Inhalte in diese Datei einfügen:",
+		"wantsToInsertWithLineNumber": "Roo möchte Inhalte in diese Datei in Zeile {{lineNumber}} einfügen:",
+		"wantsToInsertAtEnd": "Roo möchte Inhalte am Ende dieser Datei anhängen:"
 	},
 	"directoryOperations": {
 		"wantsToViewTopLevel": "Roo möchte die Dateien auf oberster Ebene in diesem Verzeichnis anzeigen:",
@@ -155,10 +185,6 @@
 		"hasQuestion": "Roo hat eine Frage:"
 	},
 	"taskCompleted": "Aufgabe abgeschlossen",
-	"shellIntegration": {
-		"unavailable": "Shell-Integration nicht verfügbar",
-		"troubleshooting": "Immer noch Probleme?"
-	},
 	"powershell": {
 		"issues": "Es scheint, dass du Probleme mit Windows PowerShell hast, bitte sieh dir dies an"
 	},
@@ -220,7 +246,12 @@
 		"title": "Mach mehr mit Boomerang Tasks 🪃",
 		"description": "Teile deine Arbeit in Unteraufgaben auf, die jeweils in einem spezialisierten Modus laufen, wie code, architect, debug oder einem benutzerdefinierten Modus.",
 		"learnMore": "Mehr erfahren →",
-		"hideButton": "Ankündigung ausblenden"
+		"whatsNew": "Was ist neu",
+		"feature1": "<bold>Verbesserte Bearbeitungswerkzeuge</bold>: Die <code>search_and_replace</code> und <code>insert_content</code> Tools wurden verbessert und sind nicht mehr experimentell",
+		"feature2": "<bold>Diff Apply Fixes</bold>: Wir arbeiten weiterhin an der Verbesserung des <code>apply_diff</code> Tools",
+		"feature3": "<bold>Zahlreiche andere Verbesserungen</bold>: Viele Fehlerbehebungen und Optimierungen in der gesamten Erweiterung",
+		"hideButton": "Ankündigung ausblenden",
+		"detailsDiscussLinks": "Erhalte mehr Details und diskutiere auf <discordLink>Discord</discordLink> und <redditLink>Reddit</redditLink> 🚀"
 	},
 	"browser": {
 		"rooWantsToUse": "Roo möchte den Browser verwenden:",
@@ -243,5 +274,12 @@
 			"scrollUp": "Nach oben scrollen",
 			"close": "Browser schließen"
 		}
+	},
+	"systemPromptWarning": "WARNUNG: Benutzerdefinierte Systemaufforderung aktiv. Dies kann die Funktionalität erheblich beeinträchtigen und zu unvorhersehbarem Verhalten führen.",
+	"selectApiConfig": "API-Konfiguration auswählen",
+	"shellIntegration": {
+		"title": "Shell-Integration nicht verfügbar",
+		"description": "Dein Befehl wird ohne VSCode-Shell-Integration ausgeführt. Du kannst die Shell-Integration im Bereich <strong>Terminal</strong> in den <settingsLink>Roo Code Einstellungen</settingsLink> wieder aktivieren.",
+		"troubleshooting": "Klicke hier für die Shell-Integrations-Dokumentation."
 	}
 }

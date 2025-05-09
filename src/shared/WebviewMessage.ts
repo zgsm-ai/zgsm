@@ -32,6 +32,7 @@ export interface WebviewMessage {
 		| "webviewDidLaunch"
 		| "newTask"
 		| "askResponse"
+		| "terminalOperation"
 		| "clearTask"
 		| "didShowAnnouncement"
 		| "selectImages"
@@ -84,6 +85,14 @@ export interface WebviewMessage {
 		| "deleteMessage"
 		| "terminalOutputLineLimit"
 		| "terminalShellIntegrationTimeout"
+		| "terminalShellIntegrationDisabled"
+		| "terminalCommandDelay"
+		| "terminalPowershellCounter"
+		| "terminalZshClearEolMark"
+		| "terminalZshOhMy"
+		| "terminalZshP10k"
+		| "terminalZdotdir"
+		| "terminalCompressProgressBar"
 		| "mcpEnabled"
 		| "enableMcpServerCreation"
 		| "searchCommits"
@@ -148,6 +157,9 @@ export interface WebviewMessage {
 	requestId?: string
 	ids?: string[]
 	authUrl?: string
+	hasSystemPromptOverride?: boolean
+	terminalOperation?: "continue" | "abort"
+	historyPreviewCollapsed?: boolean
 }
 
 export const checkoutDiffPayloadSchema = z.object({

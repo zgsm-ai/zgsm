@@ -33,7 +33,7 @@ import { ExtensionMessage } from "../../shared/ExtensionMessage"
 import { Mode, PromptComponent, defaultModeSlug, getModeBySlug, getGroupName } from "../../shared/modes"
 import { experimentDefault } from "../../shared/experiments"
 import { formatLanguage } from "../../shared/language"
-import { Terminal, TERMINAL_SHELL_INTEGRATION_TIMEOUT } from "../../integrations/terminal/Terminal"
+import { Terminal } from "../../integrations/terminal/Terminal"
 import { downloadTask } from "../../integrations/misc/export-markdown"
 import { getTheme } from "../../integrations/theme/getTheme"
 import WorkspaceTracker from "../../integrations/workspace/WorkspaceTracker"
@@ -370,10 +370,29 @@ export class ClineProvider extends EventEmitter<ClineProviderEvents> implements 
 		}
 
 		// Initialize out-of-scope variables that need to recieve persistent global state values
-		this.getState().then(({ soundEnabled, terminalShellIntegrationTimeout }) => {
-			setSoundEnabled(soundEnabled ?? false)
-			Terminal.setShellIntegrationTimeout(terminalShellIntegrationTimeout ?? TERMINAL_SHELL_INTEGRATION_TIMEOUT)
-		})
+		this.getState().then(
+			({
+				soundEnabled = false,
+				terminalShellIntegrationTimeout = Terminal.defaultShellIntegrationTimeout,
+				terminalShellIntegrationDisabled = false,
+				terminalCommandDelay = 0,
+				terminalZshClearEolMark = true,
+				terminalZshOhMy = false,
+				terminalZshP10k = false,
+				terminalPowershellCounter = false,
+				terminalZdotdir = false,
+			}) => {
+				setSoundEnabled(soundEnabled)
+				Terminal.setShellIntegrationTimeout(terminalShellIntegrationTimeout)
+				Terminal.setShellIntegrationDisabled(terminalShellIntegrationDisabled)
+				Terminal.setCommandDelay(terminalCommandDelay)
+				Terminal.setTerminalZshClearEolMark(terminalZshClearEolMark)
+				Terminal.setTerminalZshOhMy(terminalZshOhMy)
+				Terminal.setTerminalZshP10k(terminalZshP10k)
+				Terminal.setPowershellCounter(terminalPowershellCounter)
+				Terminal.setTerminalZdotdir(terminalZdotdir)
+			},
+		)
 
 		// Initialize tts enabled state
 		this.getState().then(({ ttsEnabled }) => {
@@ -1278,6 +1297,13 @@ export class ClineProvider extends EventEmitter<ClineProviderEvents> implements 
 			writeDelayMs,
 			terminalOutputLineLimit,
 			terminalShellIntegrationTimeout,
+			terminalShellIntegrationDisabled,
+			terminalCommandDelay,
+			terminalPowershellCounter,
+			terminalZshClearEolMark,
+			terminalZshOhMy,
+			terminalZshP10k,
+			terminalZdotdir,
 			fuzzyMatchThreshold,
 			mcpEnabled,
 			enableMcpServerCreation,
@@ -1299,6 +1325,7 @@ export class ClineProvider extends EventEmitter<ClineProviderEvents> implements 
 			showRooIgnoredFiles,
 			language,
 			maxReadFileLine,
+			terminalCompressProgressBar,
 		} = await this.getState()
 
 		const telemetryKey = process.env.POSTHOG_API_KEY
@@ -1344,7 +1371,14 @@ export class ClineProvider extends EventEmitter<ClineProviderEvents> implements 
 			cachedChromeHostUrl: cachedChromeHostUrl,
 			writeDelayMs: writeDelayMs ?? 1000,
 			terminalOutputLineLimit: terminalOutputLineLimit ?? 500,
-			terminalShellIntegrationTimeout: terminalShellIntegrationTimeout ?? TERMINAL_SHELL_INTEGRATION_TIMEOUT,
+			terminalShellIntegrationTimeout: terminalShellIntegrationTimeout ?? Terminal.defaultShellIntegrationTimeout,
+			terminalShellIntegrationDisabled: terminalShellIntegrationDisabled ?? false,
+			terminalCommandDelay: terminalCommandDelay ?? 0,
+			terminalPowershellCounter: terminalPowershellCounter ?? false,
+			terminalZshClearEolMark: terminalZshClearEolMark ?? true,
+			terminalZshOhMy: terminalZshOhMy ?? false,
+			terminalZshP10k: terminalZshP10k ?? false,
+			terminalZdotdir: terminalZdotdir ?? false,
 			fuzzyMatchThreshold: fuzzyMatchThreshold ?? 1.0,
 			mcpEnabled: mcpEnabled ?? true,
 			enableMcpServerCreation: enableMcpServerCreation ?? true,
@@ -1369,10 +1403,11 @@ export class ClineProvider extends EventEmitter<ClineProviderEvents> implements 
 			telemetryKey,
 			machineId,
 			showRooIgnoredFiles: showRooIgnoredFiles ?? true,
-			language,
+			language: language ?? formatLanguage(vscode.env.language),
 			renderContext: this.renderContext,
 			maxReadFileLine: maxReadFileLine ?? 500,
 			settingsImportedAt: this.settingsImportedAt,
+			terminalCompressProgressBar: terminalCompressProgressBar ?? true,
 		}
 	}
 
@@ -1442,7 +1477,15 @@ export class ClineProvider extends EventEmitter<ClineProviderEvents> implements 
 			writeDelayMs: stateValues.writeDelayMs ?? 1000,
 			terminalOutputLineLimit: stateValues.terminalOutputLineLimit ?? 500,
 			terminalShellIntegrationTimeout:
-				stateValues.terminalShellIntegrationTimeout ?? TERMINAL_SHELL_INTEGRATION_TIMEOUT,
+				stateValues.terminalShellIntegrationTimeout ?? Terminal.defaultShellIntegrationTimeout,
+			terminalShellIntegrationDisabled: stateValues.terminalShellIntegrationDisabled ?? false,
+			terminalCommandDelay: stateValues.terminalCommandDelay ?? 0,
+			terminalPowershellCounter: stateValues.terminalPowershellCounter ?? false,
+			terminalZshClearEolMark: stateValues.terminalZshClearEolMark ?? true,
+			terminalZshOhMy: stateValues.terminalZshOhMy ?? false,
+			terminalZshP10k: stateValues.terminalZshP10k ?? false,
+			terminalZdotdir: stateValues.terminalZdotdir ?? false,
+			terminalCompressProgressBar: stateValues.terminalCompressProgressBar ?? true,
 			mode: stateValues.mode ?? defaultModeSlug,
 			language: stateValues.language ?? formatLanguage(vscode.env.language),
 			mcpEnabled: stateValues.mcpEnabled ?? true,
@@ -1598,8 +1641,10 @@ export class ClineProvider extends EventEmitter<ClineProviderEvents> implements 
 
 		// Add model ID if available
 		const currentCline = this.getCurrentCline()
+
 		if (currentCline?.api) {
 			const { id: modelId } = currentCline.api.getModel()
+
 			if (modelId) {
 				properties.modelId = modelId
 			}

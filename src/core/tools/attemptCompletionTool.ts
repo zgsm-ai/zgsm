@@ -13,6 +13,7 @@ import {
 import { formatResponse } from "../prompts/responses"
 import { telemetryService } from "../../services/telemetry/TelemetryService"
 import Anthropic from "@anthropic-ai/sdk"
+import { type ExecuteCommandOptions, executeCommand } from "./executeCommandTool"
 
 export async function attemptCompletionTool(
 	cline: Cline,
@@ -72,13 +73,15 @@ export async function attemptCompletionTool(
 				}
 
 				// Complete command message.
-				const didApprove = await askApproval("command", command)
+				const executionId = Date.now().toString()
+				const didApprove = await askApproval("command", command, { id: executionId })
 
 				if (!didApprove) {
 					return
 				}
 
-				const [userRejected, execCommandResult] = await cline.executeCommandTool(command!)
+				const options: ExecuteCommandOptions = { executionId, command }
+				const [userRejected, execCommandResult] = await executeCommand(cline, options)
 
 				if (userRejected) {
 					cline.didRejectTool = true

@@ -1,5 +1,5 @@
 {
-	"greeting": "Co Roo może dla Ciebie zrobić?",
+	"greeting": "Witamy w Roo Code",
 	"task": {
 		"title": "Zadanie",
 		"seeMore": "Zobacz więcej",
@@ -52,6 +52,10 @@
 		"title": "Kontynuuj podczas wykonywania",
 		"tooltip": "Kontynuuj pomimo ostrzeżeń"
 	},
+	"killCommand": {
+		"title": "Zatrzymaj polecenie",
+		"tooltip": "Zatrzymaj bieżące polecenie"
+	},
 	"resumeTask": {
 		"title": "Wznów zadanie",
 		"tooltip": "Kontynuuj bieżące zadanie"
@@ -65,9 +69,27 @@
 		"tooltip": "Anuluj bieżącą operację"
 	},
 	"scrollToBottom": "Przewiń do dołu czatu",
-	"aboutMe": "Dzięki najnowszym przełomom w zdolnościach kodowania agentowego, mogę krok po kroku obsługiwać złożone zadania związane z tworzeniem oprogramowania. Dzięki narzędziom, które pozwalają mi tworzyć i edytować pliki, eksplorować złożone projekty, korzystać z przeglądarki i wykonywać polecenia terminala (po udzieleniu zgody), mogę pomagać w sposób wykraczający poza uzupełnianie kodu czy wsparcie techniczne. Mogę nawet używać MCP do tworzenia nowych narzędzi i rozszerzania własnych możliwości.",
+	"about": "Generuj, refaktoryzuj i debuguj kod z pomocą sztucznej inteligencji.<br />Sprawdź naszą <DocsLink>dokumentację</DocsLink>, aby dowiedzieć się więcej.",
+	"onboarding": "<strong>Twoja lista zadań w tym obszarze roboczym jest pusta.</strong> Zacznij od wpisania zadania poniżej. Nie wiesz, jak zacząć? Przeczytaj więcej o tym, co Roo może dla Ciebie zrobić w <DocsLink>dokumentacji</DocsLink>.",
+	"rooTips": {
+		"boomerangTasks": {
+			"title": "Zadania bumerangowe",
+			"description": "Podziel zadania na mniejsze, łatwiejsze do zarządzania części."
+		},
+		"stickyModels": {
+			"title": "Tryby trwałe",
+			"description": "Każdy tryb zapamiętuje ostatnio używany model"
+		},
+		"tools": {
+			"title": "Narzędzia",
+			"description": "Pozwól sztucznej inteligencji rozwiązywać problemy, przeglądając sieć, uruchamiając polecenia i nie tylko."
+		},
+		"customizableModes": {
+			"title": "Konfigurowalne tryby",
+			"description": "Wyspecjalizowane persona z własnymi zachowaniami i przypisanymi modelami"
+		}
+	},
 	"selectMode": "Wybierz tryb interakcji",
-	"selectApiConfig": "Wybierz konfigurację API",
 	"enhancePrompt": "Ulepsz podpowiedź dodatkowym kontekstem",
 	"addImages": "Dodaj obrazy do wiadomości",
 	"sendMessage": "Wyślij wiadomość",
@@ -83,6 +105,9 @@
 	"edit": "Edytuj...",
 	"forNextMode": "dla następnego trybu",
 	"error": "Błąd",
+	"diffError": {
+		"title": "Edycja nieudana"
+	},
 	"troubleMessage": "Roo ma problemy...",
 	"apiRequest": {
 		"title": "Zapytanie API",
@@ -117,7 +142,12 @@
 		"didRead": "Roo przeczytał ten plik:",
 		"wantsToEdit": "Roo chce edytować ten plik:",
 		"wantsToEditOutsideWorkspace": "Roo chce edytować ten plik poza obszarem roboczym:",
-		"wantsToCreate": "Roo chce utworzyć nowy plik:"
+		"wantsToCreate": "Roo chce utworzyć nowy plik:",
+		"wantsToSearchReplace": "Roo chce wykonać wyszukiwanie i zamianę w tym pliku:",
+		"didSearchReplace": "Roo wykonał wyszukiwanie i zamianę w tym pliku:",
+		"wantsToInsert": "Roo chce wstawić zawartość do tego pliku:",
+		"wantsToInsertWithLineNumber": "Roo chce wstawić zawartość do tego pliku w linii {{lineNumber}}:",
+		"wantsToInsertAtEnd": "Roo chce dodać zawartość na końcu tego pliku:"
 	},
 	"directoryOperations": {
 		"wantsToViewTopLevel": "Roo chce zobaczyć pliki najwyższego poziomu w tym katalogu:",
@@ -155,10 +185,6 @@
 		"hasQuestion": "Roo ma pytanie:"
 	},
 	"taskCompleted": "Zadanie zakończone",
-	"shellIntegration": {
-		"unavailable": "Integracja powłoki niedostępna",
-		"troubleshooting": "Nadal masz problemy?"
-	},
 	"powershell": {
 		"issues": "Wygląda na to, że masz problemy z Windows PowerShell, proszę zapoznaj się z tym"
 	},
@@ -220,7 +246,12 @@
 		"title": "Zrób więcej z Zadaniami Bumerang 🪃",
 		"description": "Podziel pracę na podzadania, każde działające w wyspecjalizowanym trybie, takim jak code, architect, debug lub trybie niestandardowym.",
 		"learnMore": "Dowiedz się więcej →",
-		"hideButton": "Ukryj ogłoszenie"
+		"whatsNew": "Co nowego",
+		"feature1": "<bold>Ulepszone narzędzia edycji</bold>: Narzędzia <code>search_and_replace</code> i <code>insert_content</code> zostały ulepszone i nie są już eksperymentalne",
+		"feature2": "<bold>Poprawki apply_diff</bold>: Kontynuujemy pracę nad ulepszaniem narzędzia <code>apply_diff</code>",
+		"feature3": "<bold>Mnóstwo innych ulepszeń</bold>: Liczne poprawki i usprawnienia w całym rozszerzeniu",
+		"hideButton": "Ukryj ogłoszenie",
+		"detailsDiscussLinks": "Uzyskaj więcej szczegółów i dołącz do dyskusji na <discordLink>Discord</discordLink> i <redditLink>Reddit</redditLink> 🚀"
 	},
 	"browser": {
 		"rooWantsToUse": "Roo chce użyć przeglądarki:",
@@ -243,5 +274,12 @@
 			"scrollUp": "Przewiń w górę",
 			"close": "Zamknij przeglądarkę"
 		}
+	},
+	"systemPromptWarning": "OSTRZEŻENIE: Aktywne niestandardowe zastąpienie instrukcji systemowych. Może to poważnie zakłócić funkcjonalność i powodować nieprzewidywalne zachowanie.",
+	"selectApiConfig": "Wybierz konfigurację API",
+	"shellIntegration": {
+		"title": "Integracja powłoki niedostępna",
+		"description": "Twoje polecenie jest wykonywane bez integracji powłoki VSCode. Możesz ponownie włączyć integrację powłoki w sekcji <strong>Terminal</strong> w <settingsLink>ustawieniach Roo Code</settingsLink>.",
+		"troubleshooting": "Kliknij tutaj, aby zobaczyć dokumentację integracji powłoki."
 	}
 }

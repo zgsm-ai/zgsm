@@ -283,6 +283,14 @@ type GlobalSettings = {
 	maxReadFileLine?: number | undefined
 	terminalOutputLineLimit?: number | undefined
 	terminalShellIntegrationTimeout?: number | undefined
+	terminalShellIntegrationDisabled?: boolean | undefined
+	terminalCommandDelay?: number | undefined
+	terminalPowershellCounter?: boolean | undefined
+	terminalZshClearEolMark?: boolean | undefined
+	terminalZshOhMy?: boolean | undefined
+	terminalZshP10k?: boolean | undefined
+	terminalZdotdir?: boolean | undefined
+	terminalCompressProgressBar?: boolean | undefined
 	rateLimitSeconds?: number | undefined
 	diffEnabled?: boolean | undefined
 	fuzzyMatchThreshold?: number | undefined
@@ -418,6 +426,7 @@ type ClineMessage = {
 		| undefined
 	progressStatus?:
 		| {
+				id?: string | undefined
 				icon?: string | undefined
 				text?: string | undefined
 		  }
@@ -498,6 +507,7 @@ type RooCodeEvents = {
 					| undefined
 				progressStatus?:
 					| {
+							id?: string | undefined
 							icon?: string | undefined
 							text?: string | undefined
 					  }

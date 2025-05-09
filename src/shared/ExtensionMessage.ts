@@ -70,6 +70,9 @@ export interface ExtensionMessage {
 		| "maxReadFileLine"
 		| "fileSearchResults"
 		| "toggleApiConfigPin"
+		| "acceptInput"
+		| "setHistoryPreviewCollapsed"
+		| "commandExecutionStatus"
 	text?: string
 	action?:
 		| "chatButtonClicked"
@@ -156,6 +159,14 @@ export type ExtensionState = Pick<
 	// | "maxReadFileLine" // Optional in GlobalSettings, required here.
 	| "terminalOutputLineLimit"
 	| "terminalShellIntegrationTimeout"
+	| "terminalShellIntegrationDisabled"
+	| "terminalCommandDelay"
+	| "terminalPowershellCounter"
+	| "terminalZshClearEolMark"
+	| "terminalZshOhMy"
+	| "terminalZshP10k"
+	| "terminalZdotdir"
+	| "terminalCompressProgressBar"
 	| "diffEnabled"
 	| "fuzzyMatchThreshold"
 	// | "experiments" // Optional in GlobalSettings, required here.

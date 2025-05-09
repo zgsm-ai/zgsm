@@ -1,5 +1,5 @@
 {
-	"greeting": "Cosa può fare Roo per te?",
+	"greeting": "Benvenuto a Roo Code",
 	"task": {
 		"title": "Attività",
 		"seeMore": "Vedi altro",
@@ -7,7 +7,7 @@
 		"tokens": "Tokens:",
 		"cache": "Cache:",
 		"apiCost": "Costo API:",
-		"contextWindow": "Finestra di contesto:",
+		"contextWindow": "Lunghezza del contesto:",
 		"closeAndStart": "Chiudi attività e iniziane una nuova",
 		"export": "Esporta cronologia attività",
 		"delete": "Elimina attività (Shift + Clic per saltare la conferma)"
@@ -52,6 +52,10 @@
 		"title": "Procedi durante l'esecuzione",
 		"tooltip": "Continua nonostante gli avvisi"
 	},
+	"killCommand": {
+		"title": "Termina comando",
+		"tooltip": "Termina il comando corrente"
+	},
 	"resumeTask": {
 		"title": "Riprendi attività",
 		"tooltip": "Continua l'attività corrente"
@@ -65,9 +69,27 @@
 		"tooltip": "Annulla l'operazione corrente"
 	},
 	"scrollToBottom": "Scorri fino alla fine della chat",
-	"aboutMe": "Grazie alle più recenti innovazioni nelle capacità di codifica agentica, posso gestire complesse attività di sviluppo software passo dopo passo. Con strumenti che mi permettono di creare e modificare file, esplorare progetti complessi, utilizzare il browser ed eseguire comandi da terminale (dopo la tua autorizzazione), posso aiutarti in modi che vanno oltre il completamento del codice o il supporto tecnico. Posso persino usare MCP per creare nuovi strumenti ed estendere le mie capacità.",
+	"about": "Genera, refactor e debug del codice con l'assistenza dell'IA.<br />Consulta la nostra <DocsLink>documentazione</DocsLink> per saperne di più.",
+	"onboarding": "Grazie alle più recenti innovazioni nelle capacità di codifica agentica, posso gestire complesse attività di sviluppo software passo dopo passo. Con strumenti che mi permettono di creare e modificare file, esplorare progetti complessi, utilizzare il browser ed eseguire comandi da terminale (dopo la tua autorizzazione), posso aiutarti in modi che vanno oltre il completamento del codice o il supporto tecnico. Posso persino usare MCP per creare nuovi strumenti ed estendere le mie capacità.",
+	"rooTips": {
+		"boomerangTasks": {
+			"title": "Attività Boomerang",
+			"description": "Dividi le attività in parti più piccole e gestibili."
+		},
+		"stickyModels": {
+			"title": "Modalità persistenti",
+			"description": "Ogni modalità ricorda il tuo ultimo modello utilizzato"
+		},
+		"tools": {
+			"title": "Strumenti",
+			"description": "Consenti all'IA di risolvere i problemi navigando sul Web, eseguendo comandi e altro ancora."
+		},
+		"customizableModes": {
+			"title": "Modalità personalizzabili",
+			"description": "Personalità specializzate con comportamenti propri e modelli assegnati"
+		}
+	},
 	"selectMode": "Seleziona modalità di interazione",
-	"selectApiConfig": "Seleziona configurazione API",
 	"enhancePrompt": "Migliora prompt con contesto aggiuntivo",
 	"addImages": "Aggiungi immagini al messaggio",
 	"sendMessage": "Invia messaggio",
@@ -86,6 +108,9 @@
 		"wantsToFetch": "Roo vuole recuperare istruzioni dettagliate per aiutare con l'attività corrente"
 	},
 	"error": "Errore",
+	"diffError": {
+		"title": "Modifica non riuscita"
+	},
 	"troubleMessage": "Roo sta avendo problemi...",
 	"apiRequest": {
 		"title": "Richiesta API",
@@ -117,7 +142,12 @@
 		"didRead": "Roo ha letto questo file:",
 		"wantsToEdit": "Roo vuole modificare questo file:",
 		"wantsToEditOutsideWorkspace": "Roo vuole modificare questo file al di fuori dell'area di lavoro:",
-		"wantsToCreate": "Roo vuole creare un nuovo file:"
+		"wantsToCreate": "Roo vuole creare un nuovo file:",
+		"wantsToSearchReplace": "Roo vuole eseguire ricerca e sostituzione in questo file:",
+		"didSearchReplace": "Roo ha eseguito ricerca e sostituzione in questo file:",
+		"wantsToInsert": "Roo vuole inserire contenuto in questo file:",
+		"wantsToInsertWithLineNumber": "Roo vuole inserire contenuto in questo file alla riga {{lineNumber}}:",
+		"wantsToInsertAtEnd": "Roo vuole aggiungere contenuto alla fine di questo file:"
 	},
 	"directoryOperations": {
 		"wantsToViewTopLevel": "Roo vuole visualizzare i file di primo livello in questa directory:",
@@ -155,10 +185,6 @@
 		"hasQuestion": "Roo ha una domanda:"
 	},
 	"taskCompleted": "Attività completata",
-	"shellIntegration": {
-		"unavailable": "Integrazione shell non disponibile",
-		"troubleshooting": "Ancora problemi?"
-	},
 	"powershell": {
 		"issues": "Sembra che tu stia avendo problemi con Windows PowerShell, consulta questa"
 	},
@@ -220,7 +246,12 @@
 		"title": "Fai di più con le Attività Boomerang 🪃",
 		"description": "Dividi il lavoro in sottoattività, ognuna eseguita in una modalità specializzata, come code, architect, debug o una modalità personalizzata.",
 		"learnMore": "Scopri di più →",
-		"hideButton": "Nascondi annuncio"
+		"whatsNew": "Novità",
+		"feature1": "<bold>Strumenti di modifica migliorati</bold>: Gli strumenti <code>search_and_replace</code> e <code>insert_content</code> sono stati migliorati e non sono più sperimentali",
+		"feature2": "<bold>Correzioni per apply_diff</bold>: Continuiamo a lavorare per migliorare lo strumento <code>apply_diff</code>",
+		"feature3": "<bold>Tantissimi altri miglioramenti</bold>: Numerose correzioni e ottimizzazioni in tutta l'estensione",
+		"hideButton": "Nascondi annuncio",
+		"detailsDiscussLinks": "Ottieni maggiori dettagli e partecipa alle discussioni su <discordLink>Discord</discordLink> e <redditLink>Reddit</redditLink> 🚀"
 	},
 	"browser": {
 		"rooWantsToUse": "Roo vuole utilizzare il browser:",
@@ -243,5 +274,12 @@
 			"scrollUp": "Scorri verso l'alto",
 			"close": "Chiudi browser"
 		}
+	},
+	"systemPromptWarning": "ATTENZIONE: Sovrascrittura personalizzata delle istruzioni di sistema attiva. Questo può compromettere gravemente le funzionalità e causare comportamenti imprevedibili.",
+	"selectApiConfig": "Seleziona la configurazione API",
+	"shellIntegration": {
+		"title": "Integrazione Shell non disponibile",
+		"description": "Il tuo comando viene eseguito senza l'integrazione shell di VSCode. Puoi riattivare l'integrazione shell nella sezione <strong>Terminal</strong> delle <settingsLink>impostazioni di Roo Code</settingsLink>.",
+		"troubleshooting": "Clicca qui per la documentazione sull'integrazione shell."
 	}
 }

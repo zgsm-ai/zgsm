@@ -277,6 +277,29 @@ export const customSupportPromptsSchema = z.record(z.string(), z.string().option
 export type CustomSupportPrompts = z.infer<typeof customSupportPromptsSchema>
 
 /**
+ * CommandExecutionStatus
+ */
+
+export const commandExecutionStatusSchema = z.discriminatedUnion("status", [
+	z.object({
+		executionId: z.string(),
+		status: z.literal("running"),
+		pid: z.number().optional(),
+	}),
+	z.object({
+		executionId: z.string(),
+		status: z.literal("exited"),
+		exitCode: z.number().optional(),
+	}),
+	z.object({
+		executionId: z.string(),
+		status: z.literal("fallback"),
+	}),
+])
+
+export type CommandExecutionStatus = z.infer<typeof commandExecutionStatusSchema>
+
+/**
  * ExperimentId
  */
 
@@ -571,6 +594,14 @@ export const globalSettingsSchema = z.object({
 
 	terminalOutputLineLimit: z.number().optional(),
 	terminalShellIntegrationTimeout: z.number().optional(),
+	terminalShellIntegrationDisabled: z.boolean().optional(),
+	terminalCommandDelay: z.number().optional(),
+	terminalPowershellCounter: z.boolean().optional(),
+	terminalZshClearEolMark: z.boolean().optional(),
+	terminalZshOhMy: z.boolean().optional(),
+	terminalZshP10k: z.boolean().optional(),
+	terminalZdotdir: z.boolean().optional(),
+	terminalCompressProgressBar: z.boolean().optional(),
 
 	rateLimitSeconds: z.number().optional(),
 	diffEnabled: z.boolean().optional(),
@@ -641,6 +672,14 @@ const globalSettingsRecord: GlobalSettingsRecord = {
 
 	terminalOutputLineLimit: undefined,
 	terminalShellIntegrationTimeout: undefined,
+	terminalShellIntegrationDisabled: undefined,
+	terminalCommandDelay: undefined,
+	terminalPowershellCounter: undefined,
+	terminalZshClearEolMark: undefined,
+	terminalZshOhMy: undefined,
+	terminalZshP10k: undefined,
+	terminalZdotdir: undefined,
+	terminalCompressProgressBar: undefined,
 
 	rateLimitSeconds: undefined,
 	diffEnabled: undefined,
@@ -794,6 +833,7 @@ export type ClineSay = z.infer<typeof clineSaySchema>
  */
 
 export const toolProgressStatusSchema = z.object({
+	id: z.string().optional(),
 	icon: z.string().optional(),
 	text: z.string().optional(),
 })
@@ -834,6 +874,44 @@ export const tokenUsageSchema = z.object({
 })
 
 export type TokenUsage = z.infer<typeof tokenUsageSchema>
+
+export const toolNames = [
+	"execute_command",
+	"read_file",
+	"write_to_file",
+	"apply_diff",
+	"insert_content",
+	"search_and_replace",
+	"search_files",
+	"list_files",
+	"list_code_definition_names",
+	"browser_action",
+	"use_mcp_tool",
+	"access_mcp_resource",
+	"ask_followup_question",
+	"attempt_completion",
+	"switch_mode",
+	"new_task",
+	"fetch_instructions",
+] as const
+
+export const toolNamesSchema = z.enum(toolNames)
+
+export type ToolName = z.infer<typeof toolNamesSchema>
+
+/**
+ * ToolUsage
+ */
+
+export const toolUsageSchema = z.record(
+	toolNamesSchema,
+	z.object({
+		attempts: z.number(),
+		failures: z.number(),
+	}),
+)
+
+export type ToolUsage = z.infer<typeof toolUsageSchema>
 
 /**
  * RooCodeEvent

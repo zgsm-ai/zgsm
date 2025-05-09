@@ -1,5 +1,5 @@
 {
-	"greeting": "Roo sizin için ne yapabilir?",
+	"greeting": "Roo Code'a Hoş Geldiniz",
 	"task": {
 		"title": "Görev",
 		"seeMore": "Daha fazla gör",
@@ -7,7 +7,7 @@
 		"tokens": "Tokenlar:",
 		"cache": "Önbellek:",
 		"apiCost": "API Maliyeti:",
-		"contextWindow": "Bağlam Penceresi:",
+		"contextWindow": "Bağlam Uzunluğu:",
 		"closeAndStart": "Görevi kapat ve yeni bir görev başlat",
 		"export": "Görev geçmişini dışa aktar",
 		"delete": "Görevi sil (Onayı atlamak için Shift + Tıkla)"
@@ -52,6 +52,10 @@
 		"title": "Çalışırken Devam Et",
 		"tooltip": "Uyarılara rağmen devam et"
 	},
+	"killCommand": {
+		"title": "Komutu Durdur",
+		"tooltip": "Mevcut komutu durdur"
+	},
 	"resumeTask": {
 		"title": "Göreve Devam Et",
 		"tooltip": "Mevcut göreve devam et"
@@ -65,9 +69,27 @@
 		"tooltip": "Mevcut işlemi iptal et"
 	},
 	"scrollToBottom": "Sohbetin altına kaydır",
-	"aboutMe": "Ajansal kodlama yeteneklerindeki son atılımlar sayesinde, karmaşık yazılım geliştirme görevlerini adım adım ele alabilirim. Dosya oluşturma ve düzenleme, karmaşık projeleri keşfetme, tarayıcıyı kullanma ve terminal komutlarını çalıştırma (izin verdikten sonra) olanağı sağlayan araçlarla, kod tamamlama veya teknik desteğin ötesinde size yardımcı olabilirim. Hatta yeni araçlar oluşturmak ve kendi yeteneklerimi genişletmek için MCP'yi bile kullanabilirim.",
+	"about": "AI yardımıyla kod oluşturun, yeniden düzenleyin ve hatalarını ayıklayın.<br />Daha fazla bilgi edinmek için <DocsLink>belgelerimize</DocsLink> göz atın.",
+	"onboarding": "<strong>Bu çalışma alanındaki görev listeniz boş.</strong> Aşağıya bir görev yazarak başlayın. Nasıl başlayacağınızdan emin değil misiniz? Roo'nun sizin için neler yapabileceği hakkında daha fazla bilgiyi <DocsLink>belgelerde</DocsLink> okuyun.",
+	"rooTips": {
+		"boomerangTasks": {
+			"title": "Bumerang Görevleri",
+			"description": "Görevleri daha küçük, yönetilebilir parçalara ayırın."
+		},
+		"stickyModels": {
+			"title": "Yapışkan Modlar",
+			"description": "Her mod, en son kullandığınız modeli hatırlar"
+		},
+		"tools": {
+			"title": "Araçlar",
+			"description": "AI'nın web'e göz atarak, komutlar çalıştırarak ve daha fazlasını yaparak sorunları çözmesine izin verin."
+		},
+		"customizableModes": {
+			"title": "Özelleştirilebilir Modlar",
+			"description": "Kendi davranışları ve atanmış modelleri ile özelleştirilmiş kişilikler"
+		}
+	},
 	"selectMode": "Etkileşim modunu seçin",
-	"selectApiConfig": "API yapılandırmasını seçin",
 	"enhancePrompt": "Ek bağlamla istemi geliştir",
 	"addImages": "Mesaja resim ekle",
 	"sendMessage": "Mesaj gönder",
@@ -83,6 +105,9 @@
 	"edit": "Düzenle...",
 	"forNextMode": "sonraki mod için",
 	"error": "Hata",
+	"diffError": {
+		"title": "Düzenleme Başarısız"
+	},
 	"troubleMessage": "Roo sorun yaşıyor...",
 	"apiRequest": {
 		"title": "API İsteği",
@@ -117,7 +142,12 @@
 		"didRead": "Roo bu dosyayı okudu:",
 		"wantsToEdit": "Roo bu dosyayı düzenlemek istiyor:",
 		"wantsToEditOutsideWorkspace": "Roo çalışma alanı dışındaki bu dosyayı düzenlemek istiyor:",
-		"wantsToCreate": "Roo yeni bir dosya oluşturmak istiyor:"
+		"wantsToCreate": "Roo yeni bir dosya oluşturmak istiyor:",
+		"wantsToSearchReplace": "Roo bu dosyada arama ve değiştirme yapmak istiyor:",
+		"didSearchReplace": "Roo bu dosyada arama ve değiştirme yaptı:",
+		"wantsToInsert": "Roo bu dosyaya içerik eklemek istiyor:",
+		"wantsToInsertWithLineNumber": "Roo bu dosyanın {{lineNumber}}. satırına içerik eklemek istiyor:",
+		"wantsToInsertAtEnd": "Roo bu dosyanın sonuna içerik eklemek istiyor:"
 	},
 	"directoryOperations": {
 		"wantsToViewTopLevel": "Roo bu dizindeki üst düzey dosyaları görüntülemek istiyor:",
@@ -155,10 +185,6 @@
 		"hasQuestion": "Roo'nun bir sorusu var:"
 	},
 	"taskCompleted": "Görev Tamamlandı",
-	"shellIntegration": {
-		"unavailable": "Kabuk Entegrasyonu Kullanılamıyor",
-		"troubleshooting": "Hala sorun mu yaşıyorsunuz?"
-	},
 	"powershell": {
 		"issues": "Windows PowerShell ile ilgili sorunlar yaşıyor gibi görünüyorsunuz, lütfen şu konuya bakın"
 	},
@@ -220,7 +246,12 @@
 		"title": "Bumerang Görevleriyle Daha Fazlasını Yapın 🪃",
 		"description": "İşi alt görevlere bölerek, her birini code, architect, debug veya özel mod gibi özelleştirilmiş bir modda çalıştırın.",
 		"learnMore": "Daha fazla bilgi →",
-		"hideButton": "Duyuruyu gizle"
+		"whatsNew": "Yenilikler",
+		"feature1": "<bold>Geliştirilmiş Düzenleme Araçları</bold>: <code>search_and_replace</code> ve <code>insert_content</code> araçları iyileştirildi ve deneysel statüsünden çıkarıldı",
+		"feature2": "<bold>Apply_diff İyileştirmeleri</bold>: <code>apply_diff</code> aracını geliştirmeye devam ediyoruz",
+		"feature3": "<bold>Çok Sayıda Diğer İyileştirme</bold>: Eklenti genelinde sayısız düzeltme ve geliştirme",
+		"hideButton": "Duyuruyu gizle",
+		"detailsDiscussLinks": "<discordLink>Discord</discordLink> ve <redditLink>Reddit</redditLink> üzerinde daha fazla ayrıntı edinin ve tartışmalara katılın 🚀"
 	},
 	"browser": {
 		"rooWantsToUse": "Roo tarayıcıyı kullanmak istiyor:",
@@ -243,5 +274,12 @@
 			"scrollUp": "Yukarı kaydır",
 			"close": "Tarayıcıyı kapat"
 		}
+	},
+	"systemPromptWarning": "UYARI: Özel sistem komut geçersiz kılma aktif. Bu işlevselliği ciddi şekilde bozabilir ve öngörülemeyen davranışlara neden olabilir.",
+	"selectApiConfig": "API yapılandırmasını seçin",
+	"shellIntegration": {
+		"title": "Kabuk Entegrasyonu Kullanılamıyor",
+		"description": "Komutunuz VSCode kabuk entegrasyonu olmadan çalıştırılıyor. <settingsLink>Roo Code ayarları</settingsLink>'nın <strong>Terminal</strong> bölümünden kabuk entegrasyonunu yeniden etkinleştirebilirsiniz.",
+		"troubleshooting": "Kabuk entegrasyonu belgeleri için buraya tıklayın."
 	}
 }
