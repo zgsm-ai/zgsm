@@ -14,7 +14,6 @@ In enterprise software development, code quality and logical integrity are non-n
 
 Choose Shenma, and let AI become your most trusted programming strategist.
 
-
 ## Features
 
 - **Code Completion**: Automatically generates subsequent code based on cursor context, delivering instant results within seconds
