@@ -71,7 +71,7 @@ export class ZgsmCodeBaseSyncService {
 		ZgsmCodeBaseSyncService.providerRef = new WeakRef(provider)
 	}
 
-	static async getInstance() {
+	static getInstance() {
 		if (!ZgsmCodeBaseSyncService._instance) {
 			return (ZgsmCodeBaseSyncService._instance = new ZgsmCodeBaseSyncService())
 		}
@@ -79,7 +79,7 @@ export class ZgsmCodeBaseSyncService {
 	}
 
 	static async stopSync() {
-		const _instance = await ZgsmCodeBaseSyncService.getInstance()
+		const _instance = ZgsmCodeBaseSyncService.getInstance()
 
 		if (!_instance) return
 		_instance.stopRegisterSyncPoll()
