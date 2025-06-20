@@ -27,6 +27,8 @@ import ContextMenu from "./ContextMenu"
 import { VolumeX, Pin, Check } from "lucide-react"
 import { IconButton } from "./IconButton"
 import { cn } from "@/lib/utils"
+import styled from "styled-components"
+import { getIconForFilePath, getIconUrlByName, getIconForDirectoryPath } from "vscode-material-icons"
 
 interface ChatTextAreaProps {
 	inputValue: string
@@ -44,6 +46,40 @@ interface ChatTextAreaProps {
 	setMode: (value: Mode) => void
 	modeShortcutText: string
 }
+
+interface InputMapArrayProps {
+	className?: string
+	title?: string
+	type: "text" | "highlight" | "br"
+	value?: string
+	contextType?: ContextMenuOptionType | null
+	isMostVisible?: boolean
+}
+
+const TextareaWrapper = styled.div`
+	textarea {
+		padding: 0;
+		border: none;
+		margin-top: 2px;
+		font-size: 12px;
+
+		&:focus {
+			border: none;
+			outline: none;
+		}
+	}
+`
+
+const ChatAreaWrapper = styled.div`
+	display: flex;
+	flex-wrap: wrap;
+	overflow: hidden;
+	max-height: 45px;
+	span {
+		margin-right: 4px;
+		margin-bottom: 4px;
+	}
+`
 
 const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 	(
@@ -113,8 +149,6 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 					if (message.text) {
 						setInputValue(message.text)
 					}
-
-					setIsEnhancingPrompt(false)
 				} else if (message.type === "commitSearchResults") {
 					const commits = message.commits.map((commit: any) => ({
 						type: ContextMenuOptionType.Git,
@@ -144,14 +178,20 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 		const [searchQuery, setSearchQuery] = useState("")
 		const textAreaRef = useRef<HTMLTextAreaElement | null>(null)
 		const [isMouseDownOnMenu, setIsMouseDownOnMenu] = useState(false)
-		const highlightLayerRef = useRef<HTMLDivElement>(null)
 		const [selectedMenuIndex, setSelectedMenuIndex] = useState(-1)
 		const [selectedType, setSelectedType] = useState<ContextMenuOptionType | null>(null)
 		const [justDeletedSpaceAfterMention, setJustDeletedSpaceAfterMention] = useState(false)
 		const [intendedCursorPosition, setIntendedCursorPosition] = useState<number | null>(null)
 		const contextMenuContainerRef = useRef<HTMLDivElement>(null)
-		const [isEnhancingPrompt, setIsEnhancingPrompt] = useState(false)
 		const [isFocused, setIsFocused] = useState(false)
+		const [inputMapArr, setInputMapArr] = useState<InputMapArrayProps[]>([])
+
+		const [hoveredIconIndex, setHoveredIconIndex] = useState(-1)
+		const clampedContentRef = useRef(null)
+
+		const highlightArr = useMemo(() => {
+			return inputMapArr.filter((item) => item.type === "highlight") || []
+		}, [inputMapArr])
 
 		// Fetch git commits when Git is selected or when typing a hash.
 		useEffect(() => {
@@ -163,21 +203,6 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 				vscode.postMessage(message)
 			}
 		}, [selectedType, searchQuery])
-
-		const handleEnhancePrompt = useCallback(() => {
-			if (sendingDisabled) {
-				return
-			}
-
-			const trimmedInput = inputValue.trim()
-
-			if (trimmedInput) {
-				setIsEnhancingPrompt(true)
-				vscode.postMessage({ type: "enhancePrompt" as const, text: trimmedInput })
-			} else {
-				setInputValue(t("chat:enhancePromptDescription"))
-			}
-		}, [inputValue, sendingDisabled, setInputValue, t])
 
 		const queryItems = useMemo(() => {
 			return [
@@ -600,17 +625,74 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 		}, [])
 
 		const updateHighlights = useCallback(() => {
-			if (!textAreaRef.current || !highlightLayerRef.current) return
+			if (!textAreaRef.current) return
 
 			const text = textAreaRef.current.value
 
-			highlightLayerRef.current.innerHTML = text
-				.replace(/\n$/, "\n\n")
-				.replace(/[<>&]/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;" })[c] || c)
-				.replace(mentionRegexGlobal, '<mark class="mention-context-textarea-highlight">$&</mark>')
+			const layerSpamClass = cn("inline-block", "rounded-sm", "py-px px-1")
 
-			highlightLayerRef.current.scrollTop = textAreaRef.current.scrollTop
-			highlightLayerRef.current.scrollLeft = textAreaRef.current.scrollLeft
+			const segments: InputMapArrayProps[] = []
+
+			const lines = text.split("\n")
+
+			lines.forEach((line, lineIndex) => {
+				// Add a line break before each line except the first one
+				if (lineIndex > 0) {
+					segments.push({ type: "br" })
+				}
+
+				let lineLastIndex = 0
+				let lineMatch
+				const currentLineRegex = new RegExp(mentionRegexGlobal.source, "g")
+
+				while ((lineMatch = currentLineRegex.exec(line)) !== null) {
+					// Append the regular text that comes before the @mention match
+					if (lineMatch.index > lineLastIndex) {
+						segments.push({ type: "text", value: line.substring(lineLastIndex, lineMatch.index) })
+					}
+
+					// Handle the content matched by @mention
+					const fullMatch = lineMatch[0]
+					const MAX_LENGTH = 20
+					// Actual display content length (excluding the length of '...')
+					const DISPLAY_TRUNCATED_LENGTH = MAX_LENGTH - 3
+
+					const displayContent =
+						fullMatch.length > MAX_LENGTH
+							? `${fullMatch.substring(0, DISPLAY_TRUNCATED_LENGTH)}...`
+							: fullMatch
+
+					let contextType: ContextMenuOptionType | undefined = undefined
+					if (fullMatch.startsWith("@problems")) {
+						contextType = ContextMenuOptionType.Problems
+					} else if (fullMatch.startsWith("@terminal")) {
+						contextType = ContextMenuOptionType.Terminal
+					} else if (fullMatch.startsWith("@mode:")) {
+						contextType = ContextMenuOptionType.Mode
+					} else if (fullMatch.includes("/") && fullMatch.endsWith("/")) {
+						contextType = ContextMenuOptionType.Folder
+					} else if (fullMatch.includes("/")) {
+						contextType = ContextMenuOptionType.File
+					} else if (fullMatch.match(/^@[a-f0-9]{7,40}$/i)) {
+						contextType = ContextMenuOptionType.Git
+					}
+
+					segments.push({
+						type: "highlight",
+						value: displayContent,
+						className: layerSpamClass,
+						title: fullMatch,
+						contextType,
+					})
+					lineLastIndex = currentLineRegex.lastIndex
+				}
+				// Add all plain text after the last @mention in the current line
+				if (lineLastIndex < line.length) {
+					segments.push({ type: "text", value: line.substring(lineLastIndex) })
+				}
+			})
+
+			setInputMapArr(segments)
 		}, [])
 
 		useLayoutEffect(() => {
@@ -749,7 +831,10 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 			}
 		})
 
-		const placeholderBottomText = `\n(${t("chat:addContext")}${shouldDisableImages ? `, ${t("chat:dragFiles")}` : `, ${t("chat:dragFilesImages")}`})`
+		const [imagesBaseUri] = useState(() => {
+			const w = window as any
+			return w.IMAGES_BASE_URI || ""
+		})
 
 		return (
 			<div
@@ -836,90 +921,372 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 								"rounded",
 							)}>
 							<div
-								ref={highlightLayerRef}
-								className={cn(
-									"absolute",
-									"inset-0",
-									"pointer-events-none",
-									"whitespace-pre-wrap",
-									"break-words",
-									"text-transparent",
-									"overflow-hidden",
-									"font-vscode-font-family",
-									"text-vscode-editor-font-size",
-									"leading-vscode-editor-line-height",
-									"py-2",
-									"px-[9px]",
-									"z-10",
-									"forced-color-adjust-none",
-								)}
+								className="chat-area"
 								style={{
-									color: "transparent",
-								}}
-							/>
-							<DynamicTextArea
-								ref={(el) => {
-									if (typeof ref === "function") {
-										ref(el)
-									} else if (ref) {
-										ref.current = el
-									}
-									textAreaRef.current = el
-								}}
-								value={inputValue}
-								onChange={(e) => {
-									handleInputChange(e)
-									updateHighlights()
-								}}
-								onFocus={() => setIsFocused(true)}
-								onKeyDown={handleKeyDown}
-								onKeyUp={handleKeyUp}
-								onBlur={handleBlur}
-								onPaste={handlePaste}
-								onSelect={updateCursorPosition}
-								onMouseUp={updateCursorPosition}
-								onHeightChange={(height) => {
-									if (textAreaBaseHeight === undefined || height < textAreaBaseHeight) {
-										setTextAreaBaseHeight(height)
-									}
+									backgroundColor: "var(--color-vscode-input-background)",
+									padding: "10px",
+								}}>
+								{/* Add context */}
+								<div className={cn("text-xs", "z-11", "rounded-sm", "inline-block")}>
+									<ChatAreaWrapper ref={clampedContentRef} className="relative">
+										<span
+											className={cn("py-px px-1", "rounded-sm", "cursor-pointer", "inline-block")}
+											style={{
+												border: "1px solid rgba(255, 255, 255, 0.1)",
+											}}
+											onClick={() => {
+												if (textAreaRef.current) {
+													setShowContextMenu(true)
+													setSearchQuery("")
+													setSelectedMenuIndex(3)
+												}
+											}}>
+											{highlightArr.length ? "@" : t("chat:addContextBtn")}
+										</span>
+										{highlightArr.map((item, index) => {
+											const getIconUrl = () => {
+												if (
+													item.contextType === ContextMenuOptionType.File ||
+													item.contextType === ContextMenuOptionType.OpenedFile ||
+													item.contextType === ContextMenuOptionType.Folder
+												) {
+													const name = item.title?.split("/").filter(Boolean).at(-1) ?? ""
+													const iconName =
+														item.contextType === ContextMenuOptionType.Folder
+															? getIconForDirectoryPath(name)
+															: getIconForFilePath(name)
+													const baseUri = (window as any).MATERIAL_ICONS_BASE_URI || ""
+													return getIconUrlByName(iconName, baseUri)
+												}
+												return ""
+											}
 
-									onHeightChange?.(height)
-								}}
-								placeholder={placeholderText}
-								minRows={3}
-								maxRows={15}
-								autoFocus={true}
-								className={cn(
-									"w-full",
-									"text-vscode-input-foreground",
-									"font-vscode-font-family",
-									"text-vscode-editor-font-size",
-									"leading-vscode-editor-line-height",
-									"cursor-text",
-									"py-1.5 px-2",
-									isFocused
-										? "border border-vscode-focusBorder outline outline-vscode-focusBorder"
-										: isDraggingOver
-											? "border-2 border-dashed border-vscode-focusBorder"
-											: "border border-transparent",
-									isDraggingOver
-										? "bg-[color-mix(in_srgb,var(--vscode-input-background)_95%,var(--vscode-focusBorder))]"
-										: "bg-vscode-input-background",
-									"transition-background-color duration-150 ease-in-out",
-									"will-change-background-color",
-									"min-h-[90px]",
-									"box-border",
-									"rounded",
-									"resize-none",
-									"overflow-x-hidden",
-									"overflow-y-auto",
-									"pr-2",
-									"flex-none flex-grow",
-									"z-[2]",
-									"scrollbar-none",
-								)}
-								onScroll={() => updateHighlights()}
-							/>
+											const getIconClass = () => {
+												if (
+													item.contextType === ContextMenuOptionType.File ||
+													item.contextType === ContextMenuOptionType.OpenedFile ||
+													item.contextType === ContextMenuOptionType.Folder
+												) {
+													return ""
+												}
+												switch (item.contextType) {
+													case ContextMenuOptionType.Mode:
+														return "codicon codicon-symbol-misc"
+													case ContextMenuOptionType.Problems:
+														return "codicon codicon-warning"
+													case ContextMenuOptionType.Terminal:
+														return "codicon codicon-terminal"
+													case ContextMenuOptionType.Git:
+														return "codicon codicon-git-commit"
+													default:
+														return ""
+												}
+											}
+
+											const iconUrl = getIconUrl()
+											const deleteHighlight = () => {
+												if (!item.title) return
+
+												const newInputValue = inputValue.replace(item.title, "")
+												setInputValue(newInputValue)
+
+												const newInputMapArr = inputMapArr.filter(
+													(mapItem) =>
+														!(mapItem.type === "highlight" && mapItem.value === item.value),
+												)
+												setInputMapArr(newInputMapArr)
+											}
+
+											return (
+												<span
+													className={cn(item.className, "aaaa")}
+													key={index}
+													style={{
+														border: "1px solid rgba(255, 255, 255, 0.1)",
+														display: "inline-flex",
+														alignItems: "center",
+													}}
+													title={item.title}
+													onMouseEnter={() => setHoveredIconIndex(index)}
+													onMouseLeave={() => setHoveredIconIndex(-1)}>
+													{item.contextType &&
+														(hoveredIconIndex === index ? (
+															<i
+																className="codicon codicon-close cursor-pointer"
+																style={{
+																	fontSize: "12px",
+																	marginRight: "2px",
+																	color: "#fff",
+																}}
+																onClick={deleteHighlight}
+															/>
+														) : iconUrl ? (
+															<img
+																src={iconUrl}
+																alt=""
+																style={{
+																	width: "12px",
+																	height: "12px",
+																	marginRight: "2px",
+																}}
+															/>
+														) : (
+															<i
+																className={getIconClass()}
+																style={{ fontSize: "12px", marginRight: "2px" }}
+															/>
+														))}
+													{item.value}
+												</span>
+											)
+										})}
+									</ChatAreaWrapper>
+								</div>
+
+								<TextareaWrapper>
+									<DynamicTextArea
+										ref={(el) => {
+											if (typeof ref === "function") {
+												ref(el)
+											} else if (ref) {
+												ref.current = el
+											}
+											textAreaRef.current = el
+										}}
+										value={inputValue}
+										onChange={(e) => {
+											handleInputChange(e)
+											updateHighlights()
+										}}
+										onFocus={() => setIsFocused(true)}
+										onKeyDown={handleKeyDown}
+										onKeyUp={handleKeyUp}
+										onBlur={handleBlur}
+										onPaste={handlePaste}
+										onSelect={updateCursorPosition}
+										onMouseUp={updateCursorPosition}
+										onHeightChange={(height) => {
+											if (textAreaBaseHeight === undefined || height < textAreaBaseHeight) {
+												setTextAreaBaseHeight(height)
+											}
+
+											onHeightChange?.(height)
+										}}
+										placeholder={placeholderText}
+										minRows={3}
+										maxRows={15}
+										autoFocus={true}
+										className={cn(
+											"w-full",
+											"text-vscode-input-foreground",
+											"font-vscode-font-family",
+											"text-vscode-editor-font-size",
+											"leading-vscode-editor-line-height",
+											"cursor-text",
+											"py-1.5 px-2",
+											isFocused
+												? "border border-vscode-focusBorder outline outline-vscode-focusBorder"
+												: isDraggingOver
+													? "border-2 border-dashed border-vscode-focusBorder"
+													: "border border-transparent",
+											isDraggingOver
+												? "bg-[color-mix(in_srgb,var(--vscode-input-background)_95%,var(--vscode-focusBorder))]"
+												: "bg-vscode-input-background",
+											"transition-background-color duration-150 ease-in-out",
+											"will-change-background-color",
+											"min-h-[90px]",
+											"box-border",
+											"rounded",
+											"resize-none",
+											"overflow-x-hidden",
+											"overflow-y-auto",
+											"pr-2",
+											"flex-none flex-grow",
+											"z-[2]",
+											"scrollbar-none",
+										)}
+										onScroll={() => updateHighlights()}></DynamicTextArea>
+								</TextareaWrapper>
+
+								<div className={cn("flex", "justify-between", "items-center", "mt-auto", "pt-0.5")}>
+									<div className={cn("flex", "items-center", "gap-1", "min-w-0")}>
+										<div className="shrink-0">
+											<SelectDropdown
+												value={mode}
+												title={t("chat:selectMode")}
+												options={[
+													...getAllModes(customModes).map((mode) => ({
+														value: mode.slug,
+														label: mode.name,
+														type: DropdownOptionType.ITEM,
+														tooltip: mode.tooltip || "",
+													})),
+													{
+														value: "sep-1",
+														label: t("chat:separator"),
+														type: DropdownOptionType.SEPARATOR,
+													},
+												]}
+												onChange={(value) => {
+													setMode(value as Mode)
+													vscode.postMessage({ type: "mode", text: value })
+												}}
+												shortcutText={modeShortcutText}
+												triggerClassName="w-full"
+												needSearch={false}
+											/>
+										</div>
+
+										<div className={cn("flex-1", "min-w-0", "overflow-hidden")}>
+											<SelectDropdown
+												value={currentConfigId}
+												disabled={selectApiConfigDisabled}
+												title={t("chat:selectApiConfig")}
+												placeholder={displayName}
+												options={[
+													// Pinned items first.
+													...(listApiConfigMeta || [])
+														.filter(
+															(config) => pinnedApiConfigs && pinnedApiConfigs[config.id],
+														)
+														.map((config) => ({
+															value: config.id,
+															label: config.name,
+															name: config.name, // Keep name for comparison with currentApiConfigName.
+															type: DropdownOptionType.ITEM,
+															pinned: true,
+														}))
+														.sort((a, b) => a.label.localeCompare(b.label)),
+													// If we have pinned items and unpinned items, add a separator.
+													...(pinnedApiConfigs &&
+													Object.keys(pinnedApiConfigs).length > 0 &&
+													(listApiConfigMeta || []).some(
+														(config) => !pinnedApiConfigs[config.id],
+													)
+														? [
+																{
+																	value: "sep-pinned",
+																	label: t("chat:separator"),
+																	type: DropdownOptionType.SEPARATOR,
+																},
+															]
+														: []),
+													// Unpinned items sorted alphabetically.
+													...(listApiConfigMeta || [])
+														.filter(
+															(config) =>
+																!pinnedApiConfigs || !pinnedApiConfigs[config.id],
+														)
+														.map((config) => ({
+															value: config.id,
+															label: config.name,
+															name: config.name, // Keep name for comparison with currentApiConfigName.
+															type: DropdownOptionType.ITEM,
+															pinned: false,
+														}))
+														.sort((a, b) => a.label.localeCompare(b.label)),
+													{
+														value: "sep-2",
+														label: t("chat:separator"),
+														type: DropdownOptionType.SEPARATOR,
+													},
+													{
+														value: "settingsButtonClicked",
+														label: t("chat:edit"),
+														type: DropdownOptionType.ACTION,
+													},
+												]}
+												onChange={(value) => {
+													if (value === "settingsButtonClicked") {
+														vscode.postMessage({
+															type: "loadApiConfiguration",
+															text: value,
+															values: { section: "providers" },
+														})
+													} else {
+														vscode.postMessage({
+															type: "loadApiConfigurationById",
+															text: value,
+														})
+													}
+												}}
+												triggerClassName="w-full text-ellipsis overflow-hidden"
+												itemClassName="group"
+												renderItem={({ type, value, label, pinned }) => {
+													if (type !== DropdownOptionType.ITEM) {
+														return label
+													}
+
+													const config = listApiConfigMeta?.find((c) => c.id === value)
+													const isCurrentConfig = config?.name === currentApiConfigName
+
+													return (
+														<div className="flex justify-between gap-2 w-full h-5">
+															<div
+																className={cn("truncate min-w-0 overflow-hidden", {
+																	"font-medium": isCurrentConfig,
+																})}
+																title={label}>
+																{label}
+															</div>
+															<div className="flex justify-end w-10 flex-shrink-0">
+																<div
+																	className={cn("size-5 p-1", {
+																		"block group-hover:hidden": !pinned,
+																		hidden: !isCurrentConfig,
+																	})}>
+																	<Check className="size-3" />
+																</div>
+																<Button
+																	variant="ghost"
+																	size="icon"
+																	title={pinned ? t("chat:unpin") : t("chat:pin")}
+																	onClick={(e) => {
+																		e.stopPropagation()
+																		togglePinnedApiConfig(value)
+																		vscode.postMessage({
+																			type: "toggleApiConfigPin",
+																			text: value,
+																		})
+																	}}
+																	className={cn("size-5", {
+																		"hidden group-hover:flex": !pinned,
+																		"bg-accent": pinned,
+																	})}>
+																	<Pin className="size-3 p-0.5 opacity-50" />
+																</Button>
+															</div>
+														</div>
+													)
+												}}
+											/>
+										</div>
+									</div>
+
+									<div className={cn("flex", "items-center", "gap-0.5", "shrink-0")}>
+										<IconButton
+											iconClass="codicon-device-camera"
+											title={t("chat:addImages")}
+											disabled={shouldDisableImages}
+											onClick={onSelectImages}
+										/>
+										<IconButton
+											title={t("chat:sendMessage")}
+											disabled={sendingDisabled || !inputValue}
+											onClick={onSend}
+											icon={`${imagesBaseUri}/send.svg`}
+											iconAlt="Send"
+											opacity={!inputValue ? 0.5 : 1}
+											style={{
+												borderRadius: "2px",
+												background: "#2F6298",
+												minHeight: "16px",
+												padding: "0 6px",
+											}}
+										/>
+									</div>
+								</div>
+							</div>
 
 							{isTtsPlaying && (
 								<Button
@@ -929,28 +1296,6 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 									onClick={() => vscode.postMessage({ type: "stopTts" })}>
 									<VolumeX className="size-4" />
 								</Button>
-							)}
-
-							{!inputValue && (
-								<div
-									className={cn(
-										"absolute",
-										"left-2",
-										"flex",
-										"gap-2",
-										"text-xs",
-										"text-descriptionForeground",
-										"pointer-events-none",
-										"z-25",
-										"bottom-1.5",
-										"pr-2",
-										"transition-opacity",
-										"duration-200",
-										"ease-in-out",
-										"opacity-70",
-									)}>
-									{placeholderBottomText}
-								</div>
 							)}
 						</div>
 					</div>
@@ -967,180 +1312,6 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 						}}
 					/>
 				)}
-
-				<div className={cn("flex", "justify-between", "items-center", "mt-auto", "pt-0.5")}>
-					<div className={cn("flex", "items-center", "gap-1", "min-w-0")}>
-						<div className="shrink-0">
-							<SelectDropdown
-								value={mode}
-								title={t("chat:selectMode")}
-								options={[
-									{
-										value: "shortcut",
-										label: modeShortcutText,
-										disabled: true,
-										type: DropdownOptionType.SHORTCUT,
-									},
-									...getAllModes(customModes).map((mode) => ({
-										value: mode.slug,
-										label: mode.name,
-										type: DropdownOptionType.ITEM,
-									})),
-									{
-										value: "sep-1",
-										label: t("chat:separator"),
-										type: DropdownOptionType.SEPARATOR,
-									},
-									{
-										value: "promptsButtonClicked",
-										label: t("chat:edit"),
-										type: DropdownOptionType.ACTION,
-									},
-								]}
-								onChange={(value) => {
-									setMode(value as Mode)
-									vscode.postMessage({ type: "mode", text: value })
-								}}
-								shortcutText={modeShortcutText}
-								triggerClassName="w-full"
-							/>
-						</div>
-
-						<div className={cn("flex-1", "min-w-0", "overflow-hidden")}>
-							<SelectDropdown
-								value={currentConfigId}
-								disabled={selectApiConfigDisabled}
-								title={t("chat:selectApiConfig")}
-								placeholder={displayName}
-								options={[
-									// Pinned items first.
-									...(listApiConfigMeta || [])
-										.filter((config) => pinnedApiConfigs && pinnedApiConfigs[config.id])
-										.map((config) => ({
-											value: config.id,
-											label: config.name,
-											name: config.name, // Keep name for comparison with currentApiConfigName.
-											type: DropdownOptionType.ITEM,
-											pinned: true,
-										}))
-										.sort((a, b) => a.label.localeCompare(b.label)),
-									// If we have pinned items and unpinned items, add a separator.
-									...(pinnedApiConfigs &&
-									Object.keys(pinnedApiConfigs).length > 0 &&
-									(listApiConfigMeta || []).some((config) => !pinnedApiConfigs[config.id])
-										? [
-												{
-													value: "sep-pinned",
-													label: t("chat:separator"),
-													type: DropdownOptionType.SEPARATOR,
-												},
-											]
-										: []),
-									// Unpinned items sorted alphabetically.
-									...(listApiConfigMeta || [])
-										.filter((config) => !pinnedApiConfigs || !pinnedApiConfigs[config.id])
-										.map((config) => ({
-											value: config.id,
-											label: config.name,
-											name: config.name, // Keep name for comparison with currentApiConfigName.
-											type: DropdownOptionType.ITEM,
-											pinned: false,
-										}))
-										.sort((a, b) => a.label.localeCompare(b.label)),
-									{
-										value: "sep-2",
-										label: t("chat:separator"),
-										type: DropdownOptionType.SEPARATOR,
-									},
-									{
-										value: "settingsButtonClicked",
-										label: t("chat:edit"),
-										type: DropdownOptionType.ACTION,
-									},
-								]}
-								onChange={(value) => {
-									if (value === "settingsButtonClicked") {
-										vscode.postMessage({
-											type: "loadApiConfiguration",
-											text: value,
-											values: { section: "providers" },
-										})
-									} else {
-										vscode.postMessage({ type: "loadApiConfigurationById", text: value })
-									}
-								}}
-								triggerClassName="w-full text-ellipsis overflow-hidden"
-								itemClassName="group"
-								renderItem={({ type, value, label, pinned }) => {
-									if (type !== DropdownOptionType.ITEM) {
-										return label
-									}
-
-									const config = listApiConfigMeta?.find((c) => c.id === value)
-									const isCurrentConfig = config?.name === currentApiConfigName
-
-									return (
-										<div className="flex justify-between gap-2 w-full h-5">
-											<div
-												className={cn("truncate min-w-0 overflow-hidden", {
-													"font-medium": isCurrentConfig,
-												})}
-												title={label}>
-												{label}
-											</div>
-											<div className="flex justify-end w-10 flex-shrink-0">
-												<div
-													className={cn("size-5 p-1", {
-														"block group-hover:hidden": !pinned,
-														hidden: !isCurrentConfig,
-													})}>
-													<Check className="size-3" />
-												</div>
-												<Button
-													variant="ghost"
-													size="icon"
-													title={pinned ? t("chat:unpin") : t("chat:pin")}
-													onClick={(e) => {
-														e.stopPropagation()
-														togglePinnedApiConfig(value)
-														vscode.postMessage({ type: "toggleApiConfigPin", text: value })
-													}}
-													className={cn("size-5", {
-														"hidden group-hover:flex": !pinned,
-														"bg-accent": pinned,
-													})}>
-													<Pin className="size-3 p-0.5 opacity-50" />
-												</Button>
-											</div>
-										</div>
-									)
-								}}
-							/>
-						</div>
-					</div>
-
-					<div className={cn("flex", "items-center", "gap-0.5", "shrink-0")}>
-						<IconButton
-							iconClass={isEnhancingPrompt ? "codicon-loading" : "codicon-sparkle"}
-							title={t("chat:enhancePrompt")}
-							disabled={sendingDisabled}
-							isLoading={isEnhancingPrompt}
-							onClick={handleEnhancePrompt}
-						/>
-						<IconButton
-							iconClass="codicon-device-camera"
-							title={t("chat:addImages")}
-							disabled={shouldDisableImages}
-							onClick={onSelectImages}
-						/>
-						<IconButton
-							iconClass="codicon-send"
-							title={t("chat:sendMessage")}
-							disabled={sendingDisabled}
-							onClick={onSend}
-						/>
-					</div>
-				</div>
 			</div>
 		)
 	},
