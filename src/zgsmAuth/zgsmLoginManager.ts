@@ -9,12 +9,20 @@ import { t } from "../i18n"
 import { zgsmProviderKey } from "../shared/api"
 import { initZgsmCodeBase } from "../core/codebase"
 import { CompletionStatusBar } from "../../zgsm/src/codeCompletion/completionStatusBar"
+import { getZgsmTokenFilePath } from "../utils/path"
+import fs from "fs/promises"
+import * as fsSync from "fs"
+import { IpcClient } from "../exports/ipc"
+import { encrypt, decrypt } from "../utils/crypto"
+
+const TOKEN_BROADCAST_TYPE = "ZgsmTokenUpdated"
 
 export class ZgsmLoginManager {
 	private static instance: ZgsmLoginManager
 	public static provider: ClineProvider
 	public static stateId: string
 
+	private _tokenFileWatcher?: fsSync.FSWatcher
 	private pollingInterval?: NodeJS.Timeout
 	private baseUrl: string = ""
 	private loginUrl: string = ""
@@ -28,6 +36,14 @@ export class ZgsmLoginManager {
 	hasLoginTip: boolean = false
 	logining: boolean = false
 	fetchTokenAttempt: number = 0
+	private ipcClient?: IpcClient
+	private tokenFilePath: string = getZgsmTokenFilePath()
+
+	constructor() {
+		this.initIpcClient()
+		this.initTokenFileSync()
+	}
+
 	public static setProvider(provider: ClineProvider) {
 		ZgsmLoginManager.provider = provider
 	}
@@ -240,6 +256,17 @@ export class ZgsmLoginManager {
 			`${config.apiConfiguration.zgsmBaseUrl || config.apiConfiguration.zgsmDefaultBaseUrl}`,
 			access_token,
 		)
+
+		// 写入 token 文件
+		try {
+			const tokenJson = JSON.stringify({ access_token, refresh_token, updated_at: Date.now() })
+			const encryptedContent = await encrypt(tokenJson)
+			await fs.writeFile(this.tokenFilePath, encryptedContent, "utf8")
+			// 通过 IPC 广播 token 更新
+			this.ipcClient?.send({ type: TOKEN_BROADCAST_TYPE })
+		} catch (e) {
+			ZgsmLoginManager.provider.log("[ZgsmLoginManager] Failed to write token file or broadcast: " + String(e))
+		}
 	}
 
 	public async fetchToken(state?: string, refresh_token?: string): Promise<LoginTokens> {
@@ -440,9 +467,65 @@ export class ZgsmLoginManager {
 		return Math.min((exp - 1800) * 1000 - Date.now(), 2147483647)
 	}
 
+	private initIpcClient() {
+		const socketPath = process.env.ROO_CODE_IPC_SOCKET_PATH || "/tmp/zgsm-ipc.sock"
+		this.ipcClient = new IpcClient(socketPath, (msg) => {
+			if (ZgsmLoginManager.provider?.log) ZgsmLoginManager.provider.log("[IPC] " + String(msg))
+		})
+		this.ipcClient.on("message", async (msg: any) => {
+			if (msg && msg.type === TOKEN_BROADCAST_TYPE) {
+				await this.syncTokenFromFile()
+			}
+		})
+	}
+
+	private async syncTokenFromFile() {
+		try {
+			const encryptedContent = await fs.readFile(this.tokenFilePath, "utf8")
+			if (!encryptedContent) return
+
+			const content = await decrypt(encryptedContent) // Decrypt the content
+			const { access_token, refresh_token } = JSON.parse(content)
+			if (access_token && refresh_token) {
+				await ZgsmLoginManager.provider.setValue("zgsmApiKey", access_token)
+				await ZgsmLoginManager.provider.setValue("zgsmRefreshToken", refresh_token)
+				ZgsmLoginManager.provider.log("[ZgsmLoginManager] Token updated from encrypted file.")
+			}
+		} catch (e) {
+			ZgsmLoginManager.provider.log("[ZgsmLoginManager] Failed to sync token from file: " + String(e))
+			// If decryption fails, it might be an old plaintext file or corrupted.
+			// It's probably safest to delete it to force a new login.
+			try {
+				await fs.unlink(this.tokenFilePath)
+				ZgsmLoginManager.provider.log("[ZgsmLoginManager] Deleted invalid token file.")
+			} catch (delErr) {
+				// ignore
+			}
+		}
+	}
+
+	private initTokenFileSync() {
+		// 启动时同步一次
+		void this.syncTokenFromFile()
+		// 可选：监听文件变化，防止极端情况下 IPC 消息丢失
+		try {
+			// fs.watch can be unstable if file doesn't exist. Let's ensure it does.
+			if (!fsSync.existsSync(this.tokenFilePath)) {
+				fsSync.writeFileSync(this.tokenFilePath, "")
+			}
+			this._tokenFileWatcher = fsSync.watch(this.tokenFilePath, () => {
+				void this.syncTokenFromFile()
+			})
+		} catch (e) {
+			ZgsmLoginManager.provider.log(`[ZgsmLoginManager] Failed to set up token file watcher: ${String(e)}`)
+		}
+	}
+
 	dispose() {
 		this.stopRefreshToken()
 		clearTimeout(this.isPollingTokenTimer)
 		clearTimeout(this.isPollingStatusTimer)
+		this.ipcClient?.dispose()
+		this._tokenFileWatcher?.close()
 	}
 }

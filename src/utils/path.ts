@@ -115,3 +115,8 @@ export const getWorkspacePath = (defaultCwdPath = "") => {
 	}
 	return cwdPath
 }
+
+export function getZgsmTokenFilePath() {
+	const home = os.homedir()
+	return path.join(home, ".zgsm-tokens.json")
+}

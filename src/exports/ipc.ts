@@ -130,3 +130,62 @@ export class IpcServer extends EventEmitter<IpcServerEvents> implements RooCodeI
 		return this._isListening
 	}
 }
+
+/**
+ * IpcClient
+ */
+import { EventEmitter as NodeEventEmitter } from "node:events"
+
+export class IpcClient extends NodeEventEmitter {
+	private readonly _socketPath: string
+	private readonly _log: (...args: unknown[]) => void
+	private _clientId: string | undefined
+	private _isConnected = false
+
+	constructor(socketPath: string, log = console.log) {
+		super()
+		this._socketPath = socketPath
+		this._log = log
+		this._setup()
+	}
+
+	private _setup() {
+		ipc.config.silent = true
+		ipc.connectTo(this._socketPath, () => {
+			ipc.of[this._socketPath].on("connect", () => {
+				this._isConnected = true
+				this._log(`[IpcClient] Connected to ${this._socketPath}`)
+				this.emit("connect")
+			})
+			ipc.of[this._socketPath].on("disconnect", () => {
+				this._isConnected = false
+				this._log(`[IpcClient] Disconnected from ${this._socketPath}`)
+				this.emit("disconnect")
+			})
+			ipc.of[this._socketPath].on("message", (data: any) => {
+				this._onMessage(data)
+			})
+		})
+	}
+
+	private _onMessage(data: unknown) {
+		this._log("[IpcClient#onMessage]", data)
+		this.emit("message", data)
+	}
+
+	public send(message: any) {
+		if (this._isConnected) {
+			ipc.of[this._socketPath].emit("message", message)
+		}
+	}
+
+	public get isConnected() {
+		return this._isConnected
+	}
+
+	public dispose() {
+		if (ipc.of[this._socketPath]) {
+			ipc.disconnect(this._socketPath)
+		}
+	}
+}
